@@ -5,11 +5,74 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-1.1.x"]
 }
 
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
+
+enum Role {
+  VENDOR
+  EMPLOYEE
+}
+
+enum StallSize {
+  SMALL
+  MEDIUM
+  LARGE
+}
+
+enum ReservationStatus {
+  ACTIVE
+  CANCELLED
+}
+
+model User {
+  id            Int       @id @default(autoincrement())
+  email         String    @unique
+  password      String
+  businessName  String
+  contactPerson String
+  phone         String
+  address       String
+  role          Role      @default(VENDOR)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  reservations  Reservation[]
+}
+
+model Stall {
+  id          Int        @id @default(autoincrement())
+  name        String     @unique     // A, B, C...
+  size        StallSize
+  dimensions  String
+  location    String
+  isAvailable Boolean    @default(true)
+  positionX   Int
+  positionY   Int
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  reservations Reservation[]
+}
+
+model Reservation {
+  id              Int                @id @default(autoincrement())
+  userId          Int
+  stallId         Int
+  reservationDate DateTime           @default(now())
+  qrCodeUrl       String?
+  status          ReservationStatus  @default(ACTIVE)
+  literaryGenres  Json?              // array of strings
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+
+  user  User  @relation(fields: [userId], references: [id])
+  stall Stall @relation(fields: [stallId], references: [id])
+
+  @@unique([userId, stallId])   // a user cannot reserve the same stall twice
+}
+
+
