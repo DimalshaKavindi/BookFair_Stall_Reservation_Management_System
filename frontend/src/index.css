@@ -17,3 +17,12 @@ code {
     monospace;
 }
 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: "AntonFont";
+  src: url("/src/assets/fonts/anton.ttf") format("truetype");
+}
+
