@@ -54,7 +54,7 @@ function Reservations() {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedHall, setSelectedHall] = useState<string>('all');
   const [viewMode, setViewMode] = useState<'map' | 'grid'>('map');
-  const [isLoadingData, setIsLoadingData] = useState(true);
+  // Map data is loaded from local storage at runtime
 
   // Load map data from localStorage (created by MapBuilder)
   useEffect(() => {
@@ -102,8 +102,6 @@ function Reservations() {
         }
       } catch (error) {
         console.error('Error loading map data:', error);
-      } finally {
-        setIsLoadingData(false);
       }
     };
     
@@ -160,7 +158,7 @@ function Reservations() {
     }
     
     if (isSelected) {
-      return 'aspect-square min-w-[70px] md:min-w-[90px] border-4 border-purple-600 rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all duration-200 p-2 bg-gradient-to-br from-purple-500 to-pink-500 text-white scale-110 shadow-2xl ring-4 ring-purple-300 relative overflow-hidden z-10';
+      return 'aspect-square min-w-[70px] md:min-w-[90px] border-4 border-sky-600 rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all duration-200 p-2 bg-gradient-to-br from-sky-500 to-cyan-400 text-white scale-110 shadow-2xl ring-4 ring-sky-300 relative overflow-hidden z-10';
     }
     
     const sizeStyles = {
@@ -194,19 +192,9 @@ function Reservations() {
     return acc;
   }, {} as { [key: string]: Stall[] });
 
-  const getHallColor = (hallName: string) => {
-    const hall = halls.find(h => h.name === hallName);
-    if (hall && hall.color) {
-      // Convert hex color to Tailwind gradient classes
-      // For simplicity, we'll use a generic gradient based on the color
-      return `from-[${hall.color}] to-[${hall.color}]`;
-    }
-    return 'from-purple-400 to-pink-400';
-  };
-
   const getHallColorStyle = (hallName: string) => {
     const hall = halls.find(h => h.name === hallName);
-    return hall?.color || '#9333ea';
+    return hall?.color || '#0f9ed6';
   };
 
   const hallLayouts = halls.reduce((acc, hall) => {
@@ -222,36 +210,36 @@ function Reservations() {
   }, {} as { [key: string]: { x: number; y: number; width: number; height: number; rows: number; cols: number } });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-[#0e1a4f] via-[#123c8c] to-[#0f9ed6] relative overflow-hidden">
       {/* Animated background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-96 h-96 bg-blue-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
-        <div className="absolute top-40 right-10 w-96 h-96 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
-        <div className="absolute -bottom-8 left-1/2 w-96 h-96 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-4000"></div>
+        <div className="absolute top-20 left-10 w-96 h-96 bg-sky-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
+        <div className="absolute top-40 right-10 w-96 h-96 bg-cyan-200 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
+        <div className="absolute -bottom-8 left-1/2 w-96 h-96 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-4000"></div>
       </div>
 
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 bg-white/90 backdrop-blur-xl px-4 md:px-8 py-5 flex flex-col md:flex-row justify-between items-center shadow-xl border-b border-white/20 z-50">
         <div className="flex items-center gap-3 mb-4 md:mb-0">
-          <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center shadow-lg">
-            <span className="text-white text-xl font-bold">📚</span>
+          <div className="w-10 h-10 rounded-lg flex items-center justify-center shadow-lg overflow-hidden">
+            <img src="/Logo.png" alt="CIBF Logo" className="w-full h-full object-contain" />
           </div>
           <div>
-            <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent m-0">
+            <h1 className="text-xl md:text-2xl font-bold text-[#0f9ed6] m-0">
               Colombo International Bookfair
             </h1>
             <p className="text-xs md:text-sm text-gray-600 m-0 font-medium">Vendor Portal</p>
           </div>
         </div>
-        <div className="flex gap-2 md:gap-3 w-full md:w-auto justify-center md:justify-end">
+        <div className="flex gap-2 md:gap-3 w-full md:w-auto justify-center md:justify-end mt-4 md:mt-0">
           <button 
-            className="px-6 py-2.5 bg-white/80 backdrop-blur-sm text-gray-700 rounded-xl text-sm font-semibold border border-gray-200 hover:bg-white hover:shadow-md transform hover:scale-105 transition-all duration-200 flex items-center gap-2"
+            className="px-6 py-2.5 bg-white/80 backdrop-blur-sm text-slate-700 rounded-xl text-sm font-semibold border border-slate-200 hover:bg-white hover:shadow-md transform hover:scale-105 transition-all duration-200 flex items-center gap-2"
             onClick={() => navigate('/vendor/dashboard')}
           >
             <span>📊</span> Dashboard
           </button>
           <button 
-            className="px-6 py-2.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl text-sm font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center gap-2"
+            className="px-6 py-2.5 bg-gradient-to-r from-sky-600 to-cyan-500 text-white rounded-xl text-sm font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center gap-2"
             onClick={() => navigate('/vendor/reservations')}
           >
             <span>📍</span> Reservations
@@ -268,7 +256,7 @@ function Reservations() {
             </div>
           </div>
           <h2 className="text-4xl md:text-5xl font-extrabold m-0 mb-3 drop-shadow-2xl">
-            Sirimao Bandasanayake Exhibition Center
+            Sirimavo Bandaranayake Exhibition Center
           </h2>
           <p className="text-lg md:text-xl opacity-95 font-medium">
             Select up to 3 stalls for your business
@@ -289,7 +277,7 @@ function Reservations() {
               onClick={() => setSelectedHall('all')}
               className={`px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 transform hover:scale-105 ${
                 selectedHall === 'all'
-                  ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
+                  ? 'bg-gradient-to-r from-sky-600 to-cyan-500 text-white shadow-lg'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
@@ -305,7 +293,7 @@ function Reservations() {
                   onClick={() => setSelectedHall(hall.name)}
                   className={`px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 transform hover:scale-105 flex items-center gap-2 ${
                     selectedHall === hall.name
-                      ? 'text-white shadow-lg'
+                      ? `bg-gradient-to-r from-[${hall.color}] to-[${hall.color}] text-white shadow-lg`
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                   style={selectedHall === hall.name ? { backgroundColor: hallColor } : {}}
@@ -328,7 +316,7 @@ function Reservations() {
               onClick={() => setViewMode('map')}
               className={`px-6 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 transform hover:scale-105 flex items-center gap-2 ${
                 viewMode === 'map'
-                  ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
+                  ? 'bg-gradient-to-r from-sky-600 to-cyan-500 text-white shadow-lg'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
@@ -338,7 +326,7 @@ function Reservations() {
               onClick={() => setViewMode('grid')}
               className={`px-6 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 transform hover:scale-105 flex items-center gap-2 ${
                 viewMode === 'grid'
-                  ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
+                  ? 'bg-gradient-to-r from-sky-600 to-cyan-500 text-white shadow-lg'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
@@ -366,7 +354,7 @@ function Reservations() {
               <span className="text-gray-700 font-medium">Large Stall</span>
             </div>
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl border-4 border-purple-600 bg-gradient-to-br from-purple-500 to-pink-500 shadow-lg ring-2 ring-purple-300"></div>
+              <div className="w-10 h-10 rounded-xl border-4 border-sky-600 bg-gradient-to-br from-sky-500 to-cyan-400 shadow-lg ring-2 ring-sky-300"></div>
               <span className="text-gray-700 font-medium">Selected</span>
             </div>
             <div className="flex items-center gap-3">
@@ -431,7 +419,7 @@ function Reservations() {
                       stall.reserved
                         ? 'border-gray-400 bg-gradient-to-br from-gray-300 to-gray-400 opacity-60 cursor-not-allowed'
                         : isSelected
-                        ? 'border-4 border-purple-600 bg-gradient-to-br from-purple-500 to-pink-500 text-white scale-125 shadow-2xl ring-2 ring-purple-300'
+                        ? 'border-4 border-sky-600 bg-gradient-to-br from-sky-500 to-cyan-400 text-white scale-125 shadow-2xl ring-2 ring-sky-300'
                         : stall.size === 'small'
                         ? 'bg-gradient-to-br from-green-300 to-emerald-400 border-green-500 hover:scale-125 hover:shadow-lg hover:z-30'
                         : stall.size === 'medium'
@@ -517,7 +505,7 @@ function Reservations() {
                     <div className="mt-4 text-center">
                       <button
                         onClick={() => setSelectedHall(hall.name)}
-                        className="text-purple-600 font-semibold hover:text-purple-700"
+                        className="text-sky-600 font-semibold hover:text-sky-700"
                       >
                         View all {hallStalls.length} stalls in Hall {hall.name} →
                       </button>
@@ -587,7 +575,7 @@ function Reservations() {
                   ? 'bg-gray-200 text-gray-600' 
                   : selectedStalls.length >= 3
                   ? 'bg-red-100 text-red-600'
-                  : 'bg-gradient-to-r from-purple-500 to-pink-500 text-white'
+                  : 'bg-gradient-to-r from-sky-600 to-cyan-500 text-white'
               }`}>
                 {selectedStalls.length}/3
               </span>
@@ -604,7 +592,7 @@ function Reservations() {
               {selectedStalls.map((stall, index) => (
                 <div 
                   key={stall.id} 
-                  className="group p-5 bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl border-2 border-purple-200 hover:border-purple-400 hover:shadow-xl transition-all duration-200 transform hover:-translate-y-1"
+                  className="group p-5 bg-gradient-to-br from-sky-50 to-cyan-50 rounded-2xl border-2 border-sky-200 hover:border-sky-400 hover:shadow-xl transition-all duration-200 transform hover:-translate-y-1"
                 >
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-3">
@@ -641,13 +629,13 @@ function Reservations() {
         {/* Action Buttons */}
         <div className="flex flex-col md:flex-row gap-4 justify-center">
           <button
-            className="px-8 py-4 bg-white/90 backdrop-blur-xl text-purple-600 border-2 border-purple-300 rounded-xl text-base font-bold cursor-pointer transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105 flex items-center justify-center gap-2"
+            className="px-8 py-4 bg-white/90 backdrop-blur-xl text-sky-700 border-2 border-sky-300 rounded-xl text-base font-bold cursor-pointer transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105 flex items-center justify-center gap-2"
             onClick={() => navigate('/vendor/dashboard')}
           >
             <span>←</span> Back to Dashboard
           </button>
           <button
-            className="px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white border-none rounded-xl text-base font-bold cursor-pointer transition-all duration-200 shadow-xl hover:shadow-2xl hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2"
+            className="px-8 py-4 bg-gradient-to-r from-sky-600 to-cyan-500 text-white border-none rounded-xl text-base font-bold cursor-pointer transition-all duration-200 shadow-xl hover:shadow-2xl hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2"
             onClick={() => setShowConfirmModal(true)}
             disabled={selectedStalls.length === 0}
           >
@@ -667,7 +655,7 @@ function Reservations() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="text-center mb-6">
-              <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+              <div className="w-16 h-16 bg-gradient-to-br from-sky-600 to-cyan-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
                 <span className="text-3xl">✅</span>
               </div>
               <h3 className="text-3xl font-bold text-gray-800 m-0 mb-2">Confirm Reservation</h3>
@@ -676,7 +664,7 @@ function Reservations() {
             
             <div className="space-y-3 mb-6 max-h-60 overflow-y-auto">
               {selectedStalls.map((stall) => (
-                <div key={stall.id} className="p-4 bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl border-2 border-purple-200 flex items-center justify-between">
+                <div key={stall.id} className="p-4 bg-gradient-to-br from-sky-50 to-cyan-50 rounded-xl border-2 border-sky-200 flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div 
                       className="w-10 h-10 rounded-lg flex items-center justify-center"
@@ -713,7 +701,7 @@ function Reservations() {
                 Cancel
               </button>
               <button
-                className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white border-none rounded-xl text-base font-semibold cursor-pointer transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                className="px-6 py-3 bg-gradient-to-r from-sky-600 to-cyan-500 text-white border-none rounded-xl text-base font-semibold cursor-pointer transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                 onClick={handleConfirmReservation}
                 disabled={isLoading}
               >
