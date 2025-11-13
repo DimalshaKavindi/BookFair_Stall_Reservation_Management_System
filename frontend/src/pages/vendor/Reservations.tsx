@@ -1,6 +1,32 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+const MAP_STORAGE_KEY = 'exhibition_map_data';
+
+interface Hall {
+  id: string;
+  name: string;
+  positionX: number;
+  positionY: number;
+  width: number;
+  height: number;
+  rows: number;
+  cols: number;
+  color: string;
+}
+
+interface StallData {
+  id: string;
+  name: string;
+  hallId: string;
+  size: 'SMALL' | 'MEDIUM' | 'LARGE';
+  positionX: number;
+  positionY: number;
+  row?: number;
+  col?: number;
+  isAvailable: boolean;
+}
+
 interface Stall {
   id: string;
   name: string;
@@ -22,72 +48,66 @@ interface SelectedStall extends Stall {
 function Reservations() {
   const navigate = useNavigate();
   const [stalls, setStalls] = useState<Stall[]>([]);
+  const [halls, setHalls] = useState<Hall[]>([]);
   const [selectedStalls, setSelectedStalls] = useState<SelectedStall[]>([]);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedHall, setSelectedHall] = useState<string>('all');
   const [viewMode, setViewMode] = useState<'map' | 'grid'>('map');
+  const [isLoadingData, setIsLoadingData] = useState(true);
 
-  // Halls based on the real floor plan
-  const halls = ['A', 'B', 'C', 'D', 'E', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R'];
-
-  // Hall layouts based on actual floor plans - position and dimensions
-  const hallLayouts: { [key: string]: { x: number; y: number; width: number; height: number; rows: number; cols: number; totalStalls: number } } = {
-    'A': { x: 5, y: 5, width: 28, height: 25, rows: 8, cols: 12, totalStalls: 96 },
-    'B': { x: 67, y: 5, width: 28, height: 20, rows: 6, cols: 9, totalStalls: 54 },
-    'C': { x: 67, y: 50, width: 28, height: 25, rows: 8, cols: 7, totalStalls: 53 },
-    'D': { x: 35, y: 50, width: 28, height: 20, rows: 6, cols: 10, totalStalls: 60 },
-    'E': { x: 5, y: 50, width: 25, height: 15, rows: 5, cols: 6, totalStalls: 26 },
-    'H': { x: 5, y: 70, width: 20, height: 12, rows: 4, cols: 10, totalStalls: 50 },
-    'J': { x: 5, y: 30, width: 25, height: 18, rows: 7, cols: 10, totalStalls: 70 },
-    'K': { x: 30, y: 30, width: 20, height: 15, rows: 5, cols: 8, totalStalls: 40 },
-    'L': { x: 5, y: 15, width: 12, height: 12, rows: 4, cols: 6, totalStalls: 30 },
-    'M': { x: 18, y: 15, width: 12, height: 12, rows: 4, cols: 7, totalStalls: 35 },
-    'N': { x: 40, y: 5, width: 20, height: 18, rows: 6, cols: 4, totalStalls: 23 },
-    'P': { x: 18, y: 28, width: 10, height: 10, rows: 3, cols: 8, totalStalls: 25 },
-    'Q': { x: 30, y: 15, width: 10, height: 12, rows: 4, cols: 6, totalStalls: 25 },
-    'R': { x: 30, y: 48, width: 8, height: 8, rows: 2, cols: 2, totalStalls: 4 }
-  };
-
-  // Generate stalls based on real hall structure with map positions
+  // Load map data from localStorage (created by MapBuilder)
   useEffect(() => {
-    const generatedStalls: Stall[] = [];
-    const sizes: ('small' | 'medium' | 'large')[] = ['small', 'medium', 'large'];
-
-    halls.forEach((hall) => {
-      const layout = hallLayouts[hall];
-      if (!layout) return;
-      
-      const { rows, cols, totalStalls, x, y, width, height } = layout;
-      
-      for (let i = 1; i <= totalStalls; i++) {
-        const size = sizes[Math.floor(Math.random() * sizes.length)];
-        const reserved = Math.random() > 0.75; // 25% reserved for demo
-        const stallNumber = i.toString().padStart(2, '0');
-        
-        // Calculate position within hall for map view
-        const row = Math.floor((i - 1) / cols);
-        const col = (i - 1) % cols;
-        const stallX = x + (col / cols) * width;
-        const stallY = y + (row / rows) * height;
-        
-        generatedStalls.push({
-          id: `${hall}-${stallNumber}`,
-          name: `${hall}${stallNumber}`,
-          hall: hall,
-          number: stallNumber,
-          size,
-          reserved,
-          reservedBy: reserved ? 'Vendor ' + Math.floor(Math.random() * 10) : undefined,
-          x: stallX,
-          y: stallY,
-          row,
-          col
-        });
+    const loadMapData = () => {
+      try {
+        const savedData = localStorage.getItem(MAP_STORAGE_KEY);
+        if (savedData) {
+          const data = JSON.parse(savedData);
+          const loadedHalls: Hall[] = data.halls || [];
+          const loadedStalls: StallData[] = data.stalls || [];
+          
+          setHalls(loadedHalls);
+          
+          // Transform stalls to match the display format
+          const transformedStalls: Stall[] = loadedStalls.map((stall) => {
+            const hall = loadedHalls.find(h => h.id === stall.hallId);
+            if (!hall) return null as any;
+            
+            // Calculate absolute position on map
+            const absoluteX = hall.positionX + (stall.positionX / 100) * hall.width;
+            const absoluteY = hall.positionY + (stall.positionY / 100) * hall.height;
+            
+            // Extract hall name and stall number
+            const hallName = hall.name;
+            const stallNumber = stall.name.replace(hallName, '');
+            
+            return {
+              id: stall.id,
+              name: stall.name,
+              hall: hallName,
+              number: stallNumber,
+              size: stall.size.toLowerCase() as 'small' | 'medium' | 'large',
+              reserved: !stall.isAvailable,
+              x: absoluteX,
+              y: absoluteY,
+              row: stall.row,
+              col: stall.col
+            };
+          }).filter(Boolean);
+          
+          setStalls(transformedStalls);
+        } else {
+          // Fallback: Show message if no map data exists
+          console.warn('No map data found. Please create a map using the Map Builder.');
+        }
+      } catch (error) {
+        console.error('Error loading map data:', error);
+      } finally {
+        setIsLoadingData(false);
       }
-    });
+    };
     
-    setStalls(generatedStalls);
+    loadMapData();
   }, []);
 
   const handleStallClick = (stall: Stall) => {
@@ -170,29 +190,36 @@ function Reservations() {
     : stalls.filter(stall => stall.hall === selectedHall);
 
   const stallsByHall = halls.reduce((acc, hall) => {
-    acc[hall] = filteredStalls.filter(s => s.hall === hall);
+    acc[hall.name] = filteredStalls.filter(s => s.hall === hall.name);
     return acc;
   }, {} as { [key: string]: Stall[] });
 
-  const getHallColor = (hall: string) => {
-    const colors: { [key: string]: string } = {
-      'A': 'from-blue-400 to-cyan-400',
-      'B': 'from-indigo-400 to-blue-400',
-      'C': 'from-purple-400 to-indigo-400',
-      'D': 'from-pink-400 to-purple-400',
-      'E': 'from-emerald-400 to-teal-400',
-      'H': 'from-red-400 to-pink-400',
-      'J': 'from-orange-400 to-red-400',
-      'K': 'from-yellow-400 to-orange-400',
-      'L': 'from-green-400 to-emerald-400',
-      'M': 'from-teal-400 to-cyan-400',
-      'N': 'from-cyan-400 to-blue-400',
-      'P': 'from-violet-400 to-purple-400',
-      'Q': 'from-fuchsia-400 to-pink-400',
-      'R': 'from-rose-400 to-red-400'
-    };
-    return colors[hall] || 'from-gray-400 to-gray-500';
+  const getHallColor = (hallName: string) => {
+    const hall = halls.find(h => h.name === hallName);
+    if (hall && hall.color) {
+      // Convert hex color to Tailwind gradient classes
+      // For simplicity, we'll use a generic gradient based on the color
+      return `from-[${hall.color}] to-[${hall.color}]`;
+    }
+    return 'from-purple-400 to-pink-400';
   };
+
+  const getHallColorStyle = (hallName: string) => {
+    const hall = halls.find(h => h.name === hallName);
+    return hall?.color || '#9333ea';
+  };
+
+  const hallLayouts = halls.reduce((acc, hall) => {
+    acc[hall.name] = {
+      x: hall.positionX,
+      y: hall.positionY,
+      width: hall.width,
+      height: hall.height,
+      rows: hall.rows,
+      cols: hall.cols
+    };
+    return acc;
+  }, {} as { [key: string]: { x: number; y: number; width: number; height: number; rows: number; cols: number } });
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 relative overflow-hidden">
@@ -269,19 +296,21 @@ function Reservations() {
               All Halls
             </button>
             {halls.map((hall) => {
-              const hallStalls = stalls.filter(s => s.hall === hall);
+              const hallStalls = stalls.filter(s => s.hall === hall.name);
               const availableCount = hallStalls.filter(s => !s.reserved).length;
+              const hallColor = getHallColorStyle(hall.name);
               return (
                 <button
-                  key={hall}
-                  onClick={() => setSelectedHall(hall)}
+                  key={hall.id}
+                  onClick={() => setSelectedHall(hall.name)}
                   className={`px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 transform hover:scale-105 flex items-center gap-2 ${
-                    selectedHall === hall
-                      ? `bg-gradient-to-r ${getHallColor(hall)} text-white shadow-lg`
+                    selectedHall === hall.name
+                      ? 'text-white shadow-lg'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
+                  style={selectedHall === hall.name ? { backgroundColor: hallColor } : {}}
                 >
-                  <span className="font-bold">Hall {hall}</span>
+                  <span className="font-bold">Hall {hall.name}</span>
                   <span className="text-xs opacity-75">({availableCount} available)</span>
                 </button>
               );
@@ -353,14 +382,15 @@ function Reservations() {
             <div className="relative w-full bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl" style={{ minHeight: '700px', aspectRatio: '16/9' }}>
               {/* Hall Backgrounds */}
               {halls.map((hall) => {
-                const layout = hallLayouts[hall];
+                const layout = hallLayouts[hall.name];
                 if (!layout) return null;
-                const hallStalls = stalls.filter(s => s.hall === hall);
-                const isFiltered = selectedHall !== 'all' && selectedHall !== hall;
+                const hallStalls = stalls.filter(s => s.hall === hall.name);
+                const isFiltered = selectedHall !== 'all' && selectedHall !== hall.name;
+                const hallColor = getHallColorStyle(hall.name);
                 
                 return (
                   <div
-                    key={hall}
+                    key={hall.id}
                     className={`absolute rounded-2xl border-2 border-dashed backdrop-blur-sm transition-all duration-300 ${
                       isFiltered ? 'opacity-20' : 'opacity-40'
                     }`}
@@ -369,16 +399,19 @@ function Reservations() {
                       top: `${layout.y}%`,
                       width: `${layout.width}%`,
                       height: `${layout.height}%`,
-                      background: `linear-gradient(135deg, rgba(147, 51, 234, 0.15), rgba(236, 72, 153, 0.15))`,
-                      borderColor: selectedHall === hall || selectedHall === 'all' ? 'rgba(147, 51, 234, 0.6)' : 'rgba(156, 163, 175, 0.3)'
+                      background: `linear-gradient(135deg, ${hallColor}40, ${hallColor}20)`,
+                      borderColor: selectedHall === hall.name || selectedHall === 'all' ? `${hallColor}CC` : 'rgba(156, 163, 175, 0.3)'
                     }}
                   >
                     <div className="absolute -top-7 left-2 flex items-center gap-2 z-30">
-                      <div className={`w-10 h-10 bg-gradient-to-br ${getHallColor(hall)} rounded-xl flex items-center justify-center shadow-lg border-2 border-white`}>
-                        <span className="text-white font-bold text-sm">{hall}</span>
+                      <div 
+                        className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg border-2 border-white"
+                        style={{ backgroundColor: hallColor }}
+                      >
+                        <span className="text-white font-bold text-sm">{hall.name}</span>
                       </div>
                       <span className="text-xs font-bold text-gray-700 bg-white/95 px-3 py-1 rounded-lg shadow-md">
-                        Hall {hall} ({hallStalls.filter(s => !s.reserved).length} available)
+                        Hall {hall.name} ({hallStalls.filter(s => !s.reserved).length} available)
                       </span>
                     </div>
                   </div>
@@ -427,25 +460,29 @@ function Reservations() {
         ) : selectedHall === 'all' ? (
           <div className="space-y-6">
             {halls.map((hall) => {
-              const hallStalls = stallsByHall[hall] || [];
+              const hallStalls = stallsByHall[hall.name] || [];
               if (hallStalls.length === 0) return null;
+              const hallColor = getHallColorStyle(hall.name);
               
               return (
-                <div key={hall} className="bg-white/95 backdrop-blur-xl p-6 md:p-8 rounded-3xl shadow-2xl border border-white/30">
+                <div key={hall.id} className="bg-white/95 backdrop-blur-xl p-6 md:p-8 rounded-3xl shadow-2xl border border-white/30">
                   <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-4">
-                      <div className={`w-16 h-16 bg-gradient-to-br ${getHallColor(hall)} rounded-2xl flex items-center justify-center shadow-lg`}>
-                        <span className="text-2xl font-bold text-white">{hall}</span>
+                      <div 
+                        className="w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg"
+                        style={{ backgroundColor: hallColor }}
+                      >
+                        <span className="text-2xl font-bold text-white">{hall.name}</span>
                       </div>
                       <div>
-                        <h3 className="text-2xl font-bold text-gray-800 m-0">Hall {hall}</h3>
+                        <h3 className="text-2xl font-bold text-gray-800 m-0">Hall {hall.name}</h3>
                         <p className="text-sm text-gray-600 m-0">
                           {hallStalls.filter(s => !s.reserved).length} available stalls
                         </p>
                       </div>
                     </div>
                     <button
-                      onClick={() => setSelectedHall(hall)}
+                      onClick={() => setSelectedHall(hall.name)}
                       className="px-4 py-2 bg-gray-100 text-gray-700 rounded-xl text-sm font-semibold hover:bg-gray-200 transition-all"
                     >
                       View All →
@@ -479,10 +516,10 @@ function Reservations() {
                   {hallStalls.length > 20 && (
                     <div className="mt-4 text-center">
                       <button
-                        onClick={() => setSelectedHall(hall)}
+                        onClick={() => setSelectedHall(hall.name)}
                         className="text-purple-600 font-semibold hover:text-purple-700"
                       >
-                        View all {hallStalls.length} stalls in Hall {hall} →
+                        View all {hallStalls.length} stalls in Hall {hall.name} →
                       </button>
                     </div>
                   )}
@@ -493,7 +530,10 @@ function Reservations() {
         ) : (
           <div className="bg-white/95 backdrop-blur-xl p-6 md:p-8 rounded-3xl shadow-2xl border border-white/30 overflow-x-auto">
             <div className="flex items-center gap-4 mb-6">
-              <div className={`w-16 h-16 bg-gradient-to-br ${getHallColor(selectedHall)} rounded-2xl flex items-center justify-center shadow-lg`}>
+              <div 
+                className="w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg"
+                style={{ backgroundColor: getHallColorStyle(selectedHall) }}
+              >
                 <span className="text-2xl font-bold text-white">{selectedHall}</span>
               </div>
               <div>
@@ -568,7 +608,10 @@ function Reservations() {
                 >
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-3">
-                      <div className={`w-12 h-12 bg-gradient-to-br ${getHallColor(stall.hall)} rounded-xl flex items-center justify-center shadow-lg`}>
+                      <div 
+                        className="w-12 h-12 rounded-xl flex items-center justify-center shadow-lg"
+                        style={{ backgroundColor: getHallColorStyle(stall.hall) }}
+                      >
                         <span className="text-white font-bold">{stall.hall}</span>
                       </div>
                       <div>
@@ -635,7 +678,10 @@ function Reservations() {
               {selectedStalls.map((stall) => (
                 <div key={stall.id} className="p-4 bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl border-2 border-purple-200 flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 bg-gradient-to-br ${getHallColor(stall.hall)} rounded-lg flex items-center justify-center`}>
+                    <div 
+                      className="w-10 h-10 rounded-lg flex items-center justify-center"
+                      style={{ backgroundColor: getHallColorStyle(stall.hall) }}
+                    >
                       <span className="text-white font-bold">{stall.hall}</span>
                     </div>
                     <div>
