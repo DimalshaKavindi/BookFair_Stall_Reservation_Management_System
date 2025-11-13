@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 interface Genre {
@@ -10,12 +10,46 @@ function Dashboard() {
   const navigate = useNavigate();
   const [genres, setGenres] = useState<Genre[]>([]);
   const [newGenre, setNewGenre] = useState('');
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [businessName, setBusinessName] = useState('My Business');
+  const profileMenuRef = useRef<HTMLDivElement>(null);
   const [availableGenres] = useState<string[]>([
     'Fiction', 'Non-Fiction', 'Science Fiction', 'Fantasy', 'Mystery',
     'Romance', 'Thriller', 'Horror', 'Biography', 'History',
     'Science', 'Philosophy', 'Religion', 'Self-Help', 'Business',
     'Children\'s Books', 'Young Adult', 'Poetry', 'Drama', 'Comics'
   ]);
+
+  // Load business name from localStorage or use default
+  useEffect(() => {
+    const savedBusinessName = localStorage.getItem('vendor_business_name');
+    if (savedBusinessName) {
+      setBusinessName(savedBusinessName);
+    }
+  }, []);
+
+  // Close profile menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (profileMenuRef.current && !profileMenuRef.current.contains(event.target as Node)) {
+        setShowProfileMenu(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  const handleLogout = () => {
+    // Clear any stored data
+    localStorage.removeItem('vendor_business_name');
+    localStorage.removeItem('vendor_auth_token');
+    // Redirect to login/home page
+    navigate('/');
+    // You can also show a success message or call an API to logout
+  };
 
   const handleAddGenre = () => {
     if (newGenre.trim() && !genres.find(g => g.name.toLowerCase() === newGenre.toLowerCase())) {
@@ -56,7 +90,7 @@ function Dashboard() {
             <p className="text-xs md:text-sm text-gray-600 m-0 font-medium">Vendor Portal</p>
           </div>
         </div>
-        <div className="flex gap-2 md:gap-3 w-full md:w-auto justify-center md:justify-end">
+        <div className="flex gap-2 md:gap-3 w-full md:w-auto justify-center md:justify-end items-center">
           <button 
             className="px-6 py-2.5 bg-gradient-to-r from-sky-600 to-cyan-500 text-white rounded-xl text-sm font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center gap-2"
             onClick={() => navigate('/vendor/dashboard')}
@@ -69,6 +103,65 @@ function Dashboard() {
           >
             <span>📍</span> Reservations
           </button>
+          
+          {/* Profile Menu */}
+          <div className="relative" ref={profileMenuRef}>
+            <button
+              onClick={() => setShowProfileMenu(!showProfileMenu)}
+              className="flex items-center gap-3 px-4 py-2.5 bg-white/80 backdrop-blur-sm border border-slate-200 rounded-xl hover:bg-white hover:shadow-md transition-all duration-200 transform hover:scale-105"
+            >
+              <div className="w-10 h-10 bg-gradient-to-br from-sky-500 to-cyan-400 rounded-full flex items-center justify-center shadow-md">
+                <span className="text-white font-bold text-lg">
+                  {businessName.charAt(0).toUpperCase()}
+                </span>
+              </div>
+              <div className="hidden md:block text-left">
+                <p className="text-sm font-semibold text-gray-800 m-0 leading-tight">{businessName}</p>
+                <p className="text-xs text-gray-500 m-0 leading-tight">Vendor Account</p>
+              </div>
+              <span className={`text-gray-600 transition-transform duration-200 ${showProfileMenu ? 'rotate-180' : ''}`}>
+                ▼
+              </span>
+            </button>
+
+            {/* Dropdown Menu */}
+            {showProfileMenu && (
+              <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden z-50 animate-fade-in">
+                <div className="p-4 border-b border-gray-200 bg-gradient-to-br from-sky-50 to-cyan-50">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-gradient-to-br from-sky-500 to-cyan-400 rounded-full flex items-center justify-center shadow-md">
+                      <span className="text-white font-bold text-xl">
+                        {businessName.charAt(0).toUpperCase()}
+                      </span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-bold text-gray-800 m-0 truncate">{businessName}</p>
+                      <p className="text-xs text-gray-500 m-0">Vendor Account</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="py-2">
+                  <button
+                    onClick={() => {
+                      setShowProfileMenu(false);
+                      navigate('/vendor/settings');
+                    }}
+                    className="w-full px-4 py-3 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200 flex items-center gap-3"
+                  >
+                    <span className="text-lg">⚙️</span>
+                    <span>Account Settings</span>
+                  </button>
+                  <button
+                    onClick={handleLogout}
+                    className="w-full px-4 py-3 text-left text-sm text-red-600 hover:bg-red-50 transition-colors duration-200 flex items-center gap-3"
+                  >
+                    <span className="text-lg">🚪</span>
+                    <span className="font-semibold">Logout</span>
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </nav>
 
@@ -83,7 +176,7 @@ function Dashboard() {
           <h2 className="text-4xl md:text-5xl font-extrabold m-0 mb-3 drop-shadow-2xl">
             Welcome to Your Dashboard
           </h2>
-          <p className="text-lg md:text-xl opacity-95 font-medium">
+          <p className="text-lg md:text-xl bg-gradient-to-r from-[#4dd9e8] to-[#2ab7c9] bg-clip-text text-transparent font-medium">
             Manage your literary genres and stall reservations
           </p>
         </div>
