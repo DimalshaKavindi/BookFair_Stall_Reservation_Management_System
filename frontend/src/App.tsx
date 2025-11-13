@@ -13,7 +13,6 @@ function App() {
         <Route path="/register" element={<Register/>}/>
         <Route path="/vendor/dashboard" element={<Dashboard />} />
         <Route path="/vendor/reservations" element={<Reservations />} />
-        <Route path="/admin/map-builder" element={<MapBuilder />} />
       </Routes>
     </div>
   );

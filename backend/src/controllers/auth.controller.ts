@@ -18,7 +18,6 @@ export async function loginEmployee(req: Request, res: Response) {
   res.json({ success: true, ...result });
 }
 
-
 export async function verify(_req: Request, res: Response) {
   res.json({ success: true });
 }
