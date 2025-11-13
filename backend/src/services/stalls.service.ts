@@ -8,3 +8,9 @@ export function getAll() {
 export function getAvailable() {
   return prisma.stall.findMany({ where: { isAvailable: true }, orderBy: { id: "asc" } });
 }
+
+export async function getOne(id: number) {
+  const stall = await prisma.stall.findUnique({ where: { id } });
+  if (!stall) throw { status: 404, message: "Stall not found" };
+  return stall;
+}

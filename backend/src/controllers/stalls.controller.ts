@@ -10,3 +10,9 @@ export async function getAvailable(_req: Request, res: Response) {
   const stalls = await stallsService.getAvailable();
   res.json({ success: true, stalls });
 }
+
+export async function getOne(req: Request, res: Response) {
+  const id = Number(req.params.id);
+  const stall = await stallsService.getOne(id);
+  res.json({ success: true, stall });
+}
