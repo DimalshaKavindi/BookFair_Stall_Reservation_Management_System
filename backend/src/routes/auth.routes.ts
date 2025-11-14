@@ -9,7 +9,7 @@ const r = Router();
 r.post("/register",
   body("businessName").notEmpty(),
   body("email").isEmail(),
-  body("password").isLength({ min: 6 }),
+  body("password").isLength({ min: 8 }).matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/),
   body("contactPerson").notEmpty(),
   body("phone").notEmpty(),
   body("address").notEmpty(),
@@ -34,4 +34,3 @@ r.post("/employee/login",
 
 r.get("/verify", authRequired, verify);
 export default r;
-

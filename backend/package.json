@@ -21,15 +21,19 @@
     "dotenv": "^17.2.3",
     "env": "^0.0.2",
     "express": "^5.1.0",
+    "express-rate-limit": "^8.2.1",
     "express-validator": "^7.3.0",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.1",
     "nodemailer": "^7.0.10",
-    "qrcode": "^1.5.4"
+    "qrcode": "^1.5.4",
+    "winston": "^3.18.3"
   },
   "devDependencies": {
+    "@types/express-rate-limit": "^6.0.2",
     "@types/node": "^24.10.1",
-    "prisma": "^6.19.0"
+    "prisma": "^6.19.0",
+    "tsx": "^4.20.6"
   }
 }
