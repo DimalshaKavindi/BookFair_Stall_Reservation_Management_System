@@ -1,6 +1,7 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import Dashboard from './pages/vendor/Dashboard';
 import Reservations from './pages/vendor/Reservations';
+import AccountSettings from './pages/vendor/AccountSettings';
 import Register from './pages/public/Register';
 import Login from './pages/public/Login';
 import EmployeeDashboard from './pages/employee/Dashboard';
@@ -14,7 +15,7 @@ function App() {
         <Route path="/register" element={<Register/>}/>
         <Route path="/vendor/dashboard" element={<Dashboard />} />
         <Route path="/vendor/reservations" element={<Reservations />} />
-
+        <Route path="/vendor/settings" element={<AccountSettings />} />
         <Route path="/employee/dashboard" element={<EmployeeDashboard/>} />
         <Route path="/employee/reservations" element={<EmployeeReservations/>} />
       </Routes>
