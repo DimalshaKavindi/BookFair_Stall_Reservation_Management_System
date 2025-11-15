@@ -16,3 +16,9 @@ export async function getOne(req: Request, res: Response) {
   const stall = await stallsService.getOne(id);
   res.json({ success: true, stall });
 }
+
+export async function updateOne(req: Request, res: Response) {
+  const id = Number(req.params.id);
+  const updated = await stallsService.update(id, req.body);
+  res.json({ success: true, stall: updated });
+}

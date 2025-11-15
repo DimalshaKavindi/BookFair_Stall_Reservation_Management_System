@@ -14,3 +14,8 @@ export async function getOne(id: number) {
   if (!stall) throw { status: 404, message: "Stall not found" };
   return stall;
 }
+
+export async function update(id: number, data: any) {
+  await getOne(id);
+  return prisma.stall.update({ where: { id }, data });
+}
