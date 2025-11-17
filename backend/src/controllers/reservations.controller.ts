@@ -12,3 +12,10 @@ export async function createReservation(req: Request, res: Response) {
     res.status(500).json({ success: false, message: "Failed to create reservation" });
   }
 }
+
+export async function getUserReservations(req: Request, res: Response) {
+  const { userId } = req.params;
+  const list = await reservationsService.getForUser(Number(userId));
+  res.json({ success: true, reservations: list });
+}
+

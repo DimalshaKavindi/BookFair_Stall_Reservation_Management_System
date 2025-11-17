@@ -53,3 +53,11 @@ export async function create(userId: number, stallId: number) {
 
   return withQr;
 }
+
+export function getForUser(userId: number) {
+  return prisma.reservation.findMany({
+    where: { userId },
+    include: { stall: true },
+    orderBy: { id: "desc" }
+  });
+}
