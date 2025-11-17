@@ -8,3 +8,12 @@ export async function getById(id: number) {
   return rest;
 }
 
+export async function update(id: number, data: Partial<{
+  businessName: string; contactPerson: string; phone: string; address: string;
+}>) {
+  const user = await prisma.user.update({ where: { id }, data });
+  const { password, ...rest } = user;
+  return rest;
+}
+
+
