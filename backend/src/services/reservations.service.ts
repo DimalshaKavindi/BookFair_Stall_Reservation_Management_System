@@ -61,3 +61,11 @@ export function getForUser(userId: number) {
     orderBy: { id: "desc" }
   });
 }
+
+export function getAll() {
+  return prisma.reservation.findMany({
+    include: { stall: true, user: { select: { id: true, businessName: true, email: true } } },
+    orderBy: { id: "desc" }
+  });
+}
+

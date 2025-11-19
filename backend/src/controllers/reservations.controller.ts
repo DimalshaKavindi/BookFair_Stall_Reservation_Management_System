@@ -19,3 +19,9 @@ export async function getUserReservations(req: Request, res: Response) {
   res.json({ success: true, reservations: list });
 }
 
+export async function getAllReservations(_req: Request, res: Response) {
+  const list = await reservationsService.getAll();
+  res.json({ success: true, reservations: list });
+}
+
+
