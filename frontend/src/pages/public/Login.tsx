@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Eye, EyeOff, AlertCircle, CheckCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { authAPI } from '../../api/axios';
-import type { ApiError } from '../../types/UserType';
+import type { ApiError } from '../../types/Error';
 
 export default function LoginPage() {
     const navigate = useNavigate();

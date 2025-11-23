@@ -1,27 +1,3 @@
-export interface RegisterVendorData {
-    email: string;
-    password: string;
-    businessName: string;
-    contactPerson: string;
-    phone: string;
-    address: string;
-    }
-
-    export interface RegisterResponse {
-    id: string;
-    email: string;
-    businessName: string;
-    contactPerson: string;
-    phone: string;
-    address: string;
-    role: string;
-    }
-    
-    export interface ApiError {
-    status: number;
-    message: string;
-    }
-
 export interface UserProfile {
     id: number;
     email: string;
@@ -29,7 +5,7 @@ export interface UserProfile {
     contactPerson: string;
     phone: string;
     address: string;
-    role: string;
+    role: "VENDOR" | "EMPLOYEE";
     createdAt: string;
     updatedAt: string;
 }
@@ -37,7 +13,7 @@ export interface UserProfile {
 export interface UserProfileResponse {
     success: boolean;
     user: UserProfile;
-    
+}
 export interface User {
   id: number;
   email: string;

@@ -1,9 +1,10 @@
 import axios from 'axios';
 
-import type { ApiError, RegisterResponse, RegisterVendorData, UserProfile, UserProfileResponse } from '../types/UserType';
-import type { ApiError, ProfileResponse, RegisterResponse, RegisterVendorData, User } from '../types/UserType';
+import type {  ProfileResponse, User, UserProfile, UserProfileResponse } from '../types/UserType';
 import type { Stall, StallResponse, StallsResponse } from '../types/StallType';
 import type { ReservationResponse, ReservationsResponse } from '../types/ReservationType';
+import type { ApiError } from '../types/Error';
+import type { RegisterResponse, RegisterVendorData } from '../types/RegisterType';
 
 
 const API_BASE_URL = "http://localhost:4000/api";
