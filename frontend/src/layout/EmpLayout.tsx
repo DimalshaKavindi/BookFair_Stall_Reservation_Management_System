@@ -30,8 +30,8 @@ export default function EmpLayout({ children }: EmpLayoutProps) {
   // }, [navigate]);
 
   const handleLogout = () => {
-    localStorage.removeItem("employeeToken");
-    localStorage.removeItem("employeeEmail");
+    sessionStorage.removeItem("employeeToken");
+    sessionStorage.removeItem("employeeEmail");
     navigate("/employee/login");
   };
 
@@ -80,7 +80,7 @@ export default function EmpLayout({ children }: EmpLayoutProps) {
             </div>
 
             {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center gap-1">
+            <nav className="items-center hidden gap-1 md:flex">
               {navItems.map((item) => {
                 const active = isActive(item.path);
                 return (
@@ -111,7 +111,7 @@ export default function EmpLayout({ children }: EmpLayoutProps) {
             {/* Mobile Menu Button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-lg hover:bg-white/10 transition-colors"
+              className="p-2 transition-colors rounded-lg md:hidden hover:bg-white/10"
             >
               {mobileMenuOpen ? (
                 <X className="w-6 h-6 text-white" />
@@ -123,7 +123,7 @@ export default function EmpLayout({ children }: EmpLayoutProps) {
 
           {/* Mobile Navigation */}
           {mobileMenuOpen && (
-            <div className="md:hidden py-4 border-t border-white/10">
+            <div className="py-4 border-t md:hidden border-white/10">
              
 
               {/* Navigation Links */}
@@ -165,17 +165,15 @@ export default function EmpLayout({ children }: EmpLayoutProps) {
       </header>
 
       {/* Main Content */}
-      <main className="w-full px-4 sm:px-6 lg:px-8 py-8">
+      <main className="w-full px-4 py-8 sm:px-6 lg:px-8">
         {children}
       </main>
 
       {/* Footer */}
-      <footer className="bg-white border-t border-gray-200 mt-12">
-        <div className="w-full px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p className="text-sm text-gray-600">
-              © 2025 Sri Lanka Book Publishers' Association. All rights reserved.
-            </p>
+      <footer className="mt-4 bg-white border-t border-gray-200">
+        <div className="w-full px-4 py-6 sm:px-6 lg:px-8">
+          <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
+            
             <p className="text-xs text-gray-500">
               Stall Reservation Management System v1.0
             </p>

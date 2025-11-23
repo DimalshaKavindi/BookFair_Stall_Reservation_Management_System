@@ -1,5 +1,8 @@
 import axios from 'axios';
-import type { ApiError, RegisterResponse, RegisterVendorData } from '../types/UserType';
+import type { ApiError, ProfileResponse, RegisterResponse, RegisterVendorData, User } from '../types/UserType';
+import type { Stall, StallResponse, StallsResponse } from '../types/StallType';
+import type { ReservationResponse, ReservationsResponse } from '../types/ReservationType';
+
 
 const API_BASE_URL = "http://localhost:4000/api";
 
@@ -33,6 +36,18 @@ const api = axios.create({
     }
     );
 
+    function handleError(error: any): never {
+  if (error.response) {
+    throw {
+      status: error.response.status,
+      message: error.response.data?.message || "Request failed",
+    } as ApiError;
+  }
+  throw {
+    status: 500,
+    message: "Network error. Please check your connection.",
+  } as ApiError;
+}
 export const authAPI = {
     registerVendor: async (data: RegisterVendorData): Promise<RegisterResponse> => {
         try {
@@ -76,6 +91,97 @@ export const authAPI = {
         } as ApiError;
         }
     },
+};
+// Stalls API
+export const stallsAPI = {
+  getAll: async (): Promise<StallsResponse> => {
+    try {
+      const res = await api.get<StallsResponse>("/stalls");
+      return res.data;
+    } catch (e) {
+      handleError(e);
+    }
+  },
+
+  getAvailable: async (): Promise<StallsResponse> => {
+    try {
+      const res = await api.get<StallsResponse>("/stalls/available");
+      return res.data;
+    } catch (e) {
+      handleError(e);
+    }
+  },
+
+  getOne: async (id: number): Promise<StallResponse> => {
+    try {
+      const res = await api.get<StallResponse>(`/stalls/${id}`);
+      return res.data;
+    } catch (e) {
+      handleError(e);
+    }
+  },
+
+  update: async (id: number, data: Partial<Stall>): Promise<StallResponse> => {
+    try {
+      const res = await api.put<StallResponse>(`/stalls/${id}`, data);
+      return res.data;
+    } catch (e) {
+      handleError(e);
+    }
+  },
+};
+
+// Reservations API
+export const reservationsAPI = {
+  create: async (stallId: number): Promise<ReservationResponse> => {
+    try {
+      const res = await api.post<ReservationResponse>("/reservations", { stallId });
+      return res.data;
+    } catch (e) {
+      handleError(e);
+    }
+  },
+
+  getForUser: async (userId: number): Promise<ReservationsResponse> => {
+    try {
+      const res = await api.get<ReservationsResponse>(`/reservations/user/${userId}`);
+      return res.data;
+    } catch (e) {
+      handleError(e);
+    }
+  },
+
+  getAll: async (): Promise<ReservationsResponse> => {
+    try {
+      const res = await api.get<ReservationsResponse>("/reservations");
+      return res.data;
+    } catch (e) {
+      handleError(e);
+    }
+  },
+};
+
+// Users API
+export const usersAPI = {
+  getProfile: async (): Promise<ProfileResponse> => {
+    try {
+      const res = await api.get<ProfileResponse>("/users/profile");
+      return res.data;
+    } catch (e) {
+      handleError(e);
+    }
+  },
+
+  updateProfile: async (
+    data: Partial<Pick<User, "businessName" | "contactPerson" | "phone" | "address">>
+  ): Promise<ProfileResponse> => {
+    try {
+      const res = await api.put<ProfileResponse>("/users/profile", data);
+      return res.data;
+    } catch (e) {
+      handleError(e);
+    }
+  },
 };
 
 export default api;

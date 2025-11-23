@@ -21,3 +21,19 @@ export interface RegisterVendorData {
     status: number;
     message: string;
     }
+    export interface User {
+  id: number;
+  email: string;
+  businessName: string;
+  contactPerson: string;
+  phone: string;
+  address: string;
+  role: "VENDOR" | "EMPLOYEE";
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface ProfileResponse {
+  success: boolean;
+  user: User;
+}

@@ -1,27 +1,29 @@
-import express from "express";
 import cors from "cors";
+import express from "express";
 import helmet from "helmet";
-import morgan from "morgan";
-import routes from "./routes";
-import { errorHandler, notFound } from "./middleware/error";
 import { CLIENT_ORIGIN } from "./config/env";
-import rateLimit from 'express-rate-limit';
+import { errorHandler, notFound } from "./middleware/error";
+import routes from "./routes";
 
 const app = express();
 
 app.use(helmet());
-app.use(cors({ origin: CLIENT_ORIGIN, credentials: true }));
-app.use(express.json({ limit: "2mb" }));
-app.use(express.urlencoded({ extended: true }));
-app.use(morgan("dev"));
-
-const limiter = rateLimit({
-  windowMs: 60 * 1000, 
-  max: 5, 
-  message: 'Too many requests from this IP, please try again later.'
+app.use(cors({ origin: CLIENT_ORIGIN, credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+   
+  })
+);
+app.use((req, res, next) => {
+  res.setHeader('Cross-Origin-Opener-Policy', 'unsafe-none');
+  res.setHeader("Cross-Origin-Embedder-Policy", "unsafe-none");
+  next();
 });
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
-app.use(limiter);
+
+
 
 app.use("/api", routes);
 
