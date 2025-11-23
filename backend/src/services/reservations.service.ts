@@ -69,3 +69,16 @@ export function getAll() {
   });
 }
 
+export async function cancel(id: number, userId: number) {
+  const existing = await prisma.reservation.findUnique({ where: { id } });
+  if (!existing) throw { status: 404, message: "Reservation not found" };
+  if (existing.userId !== userId) throw { status: 403, message: "Forbidden" };
+  if (existing.status === "CANCELLED") return true;
+await prisma.$transaction(async (tx) => {
+    await tx.reservation.update({ where: { id }, data: { status: "CANCELLED" } });
+    await tx.stall.update({ where: { id: existing.stallId }, data: { isAvailable: true } });
+  });
+  return true;
+}
+
+
