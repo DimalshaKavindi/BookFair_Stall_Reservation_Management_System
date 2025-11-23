@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { body } from "express-validator";
-import { register, verify, loginVendor, loginEmployee  } from "../controllers/auth.controller";
+import { register, verify, loginVendor, loginEmployee, loginAdmin  } from "../controllers/auth.controller";
 import { authRequired } from "../middleware/auth";
 import { validate } from "../middleware/validate";
 
@@ -29,6 +29,14 @@ r.post("/employee/login",
   body("password").notEmpty(),
   validate,
   loginEmployee
+);
+
+r.post(
+  "/admin/login",
+  body("email").isEmail(),
+  body("password").notEmpty(),
+  validate,
+  loginAdmin
 );
 
 

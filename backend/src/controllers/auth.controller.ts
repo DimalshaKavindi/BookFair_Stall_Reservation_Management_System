@@ -18,6 +18,12 @@ export async function loginEmployee(req: Request, res: Response) {
   res.json({ success: true, ...result });
 }
 
+export async function loginAdmin(req: Request, res: Response) {
+  const { email, password } = req.body;
+  const result = await authService.login(email, password, "ADMIN");
+  res.json({ success: true, ...result });
+}
+
 export async function verify(_req: Request, res: Response) {
   res.json({ success: true });
 }

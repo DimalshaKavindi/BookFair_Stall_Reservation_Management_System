@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import { JWT_SECRET } from "../config/env";
 
-export interface JwtUser { id: number; role: "VENDOR" | "EMPLOYEE"; }
+export interface JwtUser { id: number; role: "VENDOR" | "EMPLOYEE" | "ADMIN"; }
 
 export function authRequired(req: Request, res: Response, next: NextFunction) {
   const header = req.headers.authorization;

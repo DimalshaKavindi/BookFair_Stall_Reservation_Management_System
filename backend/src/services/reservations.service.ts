@@ -64,8 +64,28 @@ export function getForUser(userId: number) {
 
 export function getAll() {
   return prisma.reservation.findMany({
-    include: { stall: true, user: { select: { id: true, businessName: true, email: true } } },
+    include: { stall: true, user: { select: { id: true, businessName: true, email: true,phone:true,contactPerson:true } } },
     orderBy: { id: "desc" }
   });
 }
+
+export async function cancel(id: number, userId: number) {
+  const existing = await prisma.reservation.findUnique({ where: { id } });
+  if (!existing) throw { status: 404, message: "Reservation not found" };
+  if (existing.userId !== userId) throw { status: 403, message: "Forbidden" };
+  if (existing.status === "CANCELLED") return true;
+await prisma.$transaction(async (tx) => {
+    await tx.reservation.update({ where: { id }, data: { status: "CANCELLED" } });
+    await tx.stall.update({ where: { id: existing.stallId }, data: { isAvailable: true } });
+  });
+  return true;
+}
+
+export async function setGenres(id: number, genres: string[]) {
+  const existing = await prisma.reservation.findUnique({ where: { id } });
+  if (!existing) throw { status: 404, message: "Reservation not found" };
+  return prisma.reservation.update({ where: { id }, data: { literaryGenres: genres } });
+}
+
+
 

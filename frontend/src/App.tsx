@@ -8,6 +8,7 @@ import MyReservations from './pages/vendor/MyReservations';
 import VendorLayout from './layout/VendorLayout';
 import VendorProfile from './pages/vendor/Profile';
 import Dashboard from './pages/employee/Dashboard';
+import EmployeeProfile from './pages/employee/Profile';
 
 function App() {
   return (
@@ -23,6 +24,8 @@ function App() {
 
         <Route path="/employee/dashboard" element={<EmployeeDashboard/>} />
         <Route path="/employee/reservations" element={<EmployeeReservations/>} />
+        <Route path="/employee/profile" element={<EmployeeProfile/>} />
+       
       </Routes>
     </div>
   );
