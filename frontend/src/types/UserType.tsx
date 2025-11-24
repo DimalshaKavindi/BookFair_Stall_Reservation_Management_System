@@ -37,7 +37,7 @@ export interface UserProfile {
 export interface UserProfileResponse {
     success: boolean;
     user: UserProfile;
-    
+}
 export interface User {
   id: number;
   email: string;

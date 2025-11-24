@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 import type { ApiError, RegisterResponse, RegisterVendorData, UserProfile, UserProfileResponse } from '../types/UserType';
-import type { ApiError, ProfileResponse, RegisterResponse, RegisterVendorData, User } from '../types/UserType';
+import type { ProfileResponse,  User } from '../types/UserType';
 import type { Stall, StallResponse, StallsResponse } from '../types/StallType';
 import type { ReservationResponse, ReservationsResponse } from '../types/ReservationType';
 

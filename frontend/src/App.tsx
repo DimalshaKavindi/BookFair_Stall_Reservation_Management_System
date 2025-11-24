@@ -9,6 +9,7 @@ import VendorLayout from './layout/VendorLayout';
 import VendorProfile from './pages/vendor/Profile';
 import Dashboard from './pages/employee/Dashboard';
 import EmployeeProfile from './pages/employee/Profile';
+import VendorDashboard from './pages/vendor/Dashboard';
 
 function App() {
   return (
@@ -17,7 +18,7 @@ function App() {
         <Route path="/" element={<Login/>} />
         <Route path="/register" element={<Register/>}/>
         
-        <Route path="/vendor/dashboard" element={<VendorLayout><Dashboard/></VendorLayout>}/>
+        <Route path="/vendor/dashboard" element={<VendorLayout><VendorDashboard/></VendorLayout>}/>
         <Route path="/vendor/reserve-stalls" element={<VendorLayout><ReserveStalls/></VendorLayout>}/>
         <Route path="/vendor/my-reservations" element={<VendorLayout><MyReservations/></VendorLayout>}/>
         <Route path="/vendor/profile" element={<VendorLayout><VendorProfile/></VendorLayout>}/>
