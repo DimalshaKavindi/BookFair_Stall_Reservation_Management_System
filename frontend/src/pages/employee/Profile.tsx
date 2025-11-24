@@ -6,15 +6,12 @@ import {
   Phone,
   MapPin,
   Building2,
-  Users,
   Edit2,
   Save,
   X,
   Loader2,
   AlertCircle,
   CheckCircle,
-  Eye,
-  EyeOff
 } from "lucide-react";
 import { usersAPI } from "../../api/axios";
 import EmpLayout from "../../layout/EmpLayout";
@@ -27,7 +24,6 @@ export default function EmployeeProfile() {
   const [success, setSuccess] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
 
   const [formData, setFormData] = useState({
     businessName: "",
@@ -82,6 +78,8 @@ export default function EmployeeProfile() {
 
   const handleCancel = () => {
     setIsEditing(false);
+    setError(null);
+    setSuccess(null);
     if (profile) {
       setFormData({
         businessName: profile.businessName || "",
@@ -107,106 +105,102 @@ export default function EmployeeProfile() {
 
   return (
     <EmpLayout>
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
-        <div className="max-w-5xl px-4 py-8 mx-auto sm:px-6 lg:px-8">
+      
+        <div className="mx-auto space-y-6 max-w-7xl">
           
-          {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-4xl font-bold text-gray-900">Profile Settings</h1>
-            <p className="mt-2 text-gray-600">Manage your employee account information</p>
-          </div>
+       
 
-          {/* Success Alert */}
-          {success && (
-            <div className="flex items-center gap-3 p-4 mb-6 border rounded-lg bg-emerald-50 border-emerald-200">
-              <CheckCircle className="flex-shrink-0 w-5 h-5 text-emerald-600" />
-              <p className="font-medium text-emerald-700">{success}</p>
+          {/* Alerts - Only show when NOT editing */}
+          {!isEditing && success && (
+            <div className="flex items-center gap-3 p-4 mb-6 border border-green-200 rounded-lg bg-green-50">
+              <CheckCircle className="flex-shrink-0 w-5 h-5 text-green-600" />
+              <p className="text-sm font-medium text-green-800">{success}</p>
             </div>
           )}
 
-          {/* Error Alert */}
-          {error && (
+          {!isEditing && error && (
             <div className="flex items-center gap-3 p-4 mb-6 border border-red-200 rounded-lg bg-red-50">
               <AlertCircle className="flex-shrink-0 w-5 h-5 text-red-600" />
-              <p className="font-medium text-red-700">{error}</p>
+              <p className="text-sm font-medium text-red-800">{error}</p>
             </div>
           )}
 
           {/* Profile Card */}
           {profile && (
-            <div className="overflow-hidden bg-white border border-gray-200 shadow-sm rounded-2xl">
+            <div className="overflow-hidden bg-white border border-gray-200 shadow-sm rounded-xl">
               
-              {/* Profile Header */}
-              <div className="px-8 py-12 bg-gradient-to-r from-blue-600 to-blue-700">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-6">
-                    <div className="flex items-center justify-center w-20 h-20 border-2 rounded-full bg-white/20 backdrop-blur-sm border-white/30">
-                      <User className="w-10 h-10 text-white" />
+              {/* Header Section */}
+              <div className="bg-gradient-to-br from-[#1a2f8d] via-[#1f52b1] to-[#0d91c5] rounded-xl p-8 text-white shadow-[0_0_20px_rgba(77,217,232,0.4)]">
+                <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center justify-center w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm">
+                      <User className="w-8 h-8 text-white" />
                     </div>
                     <div>
                       <h2 className="text-2xl font-bold text-white">{profile.businessName || "Employee"}</h2>
-                      <p className="mt-1 text-sm font-medium tracking-wide text-blue-100 uppercase">{profile.role}</p>
-                      <p className="mt-2 text-sm text-blue-200">ID: #{profile.id}</p>
+                      <p className="mt-1 text-sm text-blue-100">{profile.role}</p>
+                     
                     </div>
                   </div>
                   {!isEditing && (
                     <button
                       onClick={() => setIsEditing(true)}
-                      className="inline-flex items-center gap-2 px-6 py-2.5 bg-white text-blue-600 font-semibold rounded-lg hover:bg-blue-50 transition-colors shadow-sm hover:shadow-md"
+                      className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-white text-blue-600 font-semibold rounded-lg hover:bg-blue-50 transition-colors"
                     >
                       <Edit2 className="w-4 h-4" />
-                      Edit Profile
+                      Edit
                     </button>
                   )}
                 </div>
               </div>
 
-              {/* Profile Content */}
-              <div className="p-8 space-y-8">
+              {/* Content Section */}
+              <div className="p-6 space-y-8 sm:p-8">
                 
-                {/* Account Information Section */}
+                {/* Account Information */}
                 <div>
                   <h3 className="flex items-center gap-2 mb-6 text-lg font-semibold text-gray-900">
                     <Mail className="w-5 h-5 text-blue-600" />
                     Account Information
                   </h3>
-                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                    {/* Email */}
-                    <div>
-                      <label className="block mb-2 text-sm font-medium text-gray-700">Email Address</label>
-                      <input
-                        type="email"
-                        value={profile.email}
-                        disabled
-                        className="w-full px-4 py-3 font-medium text-gray-900 border border-gray-200 rounded-lg bg-gray-50"
-                      />
-                      <p className="mt-1 text-xs text-gray-500">Cannot be changed</p>
-                    </div>
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                      <div>
+                        <label className="block mb-2 text-sm font-medium text-gray-700">Email Address</label>
+                        <input
+                          type="email"
+                          value={profile.email}
+                          disabled
+                          className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 text-sm"
+                        />
+                        <p className="mt-1 text-xs text-gray-500">Cannot be changed</p>
+                      </div>
 
-                    {/* Role */}
-                    <div>
-                      <label className="block mb-2 text-sm font-medium text-gray-700">Role</label>
-                      <input
-                        type="text"
-                        value={profile.role}
-                        disabled
-                        className="w-full px-4 py-3 font-medium text-gray-900 border border-gray-200 rounded-lg bg-gray-50"
-                      />
-                      <p className="mt-1 text-xs text-gray-500">System assigned</p>
+                      <div>
+                        <label className="block mb-2 text-sm font-medium text-gray-700">Role</label>
+                        <input
+                          type="text"
+                          value={profile.role}
+                          disabled
+                          className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 text-sm"
+                        />
+                        <p className="mt-1 text-xs text-gray-500">System assigned</p>
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                {/* Business Information Section */}
-                <div className="pt-8 border-t border-gray-200">
+                <hr className="border-gray-200" />
+
+                {/* Business Information */}
+                <div>
                   <h3 className="flex items-center gap-2 mb-6 text-lg font-semibold text-gray-900">
                     <Building2 className="w-5 h-5 text-blue-600" />
                     Business Information
                   </h3>
-                  
+
                   {isEditing ? (
-                    <div className="space-y-6">
-                      {/* Business Name */}
+                    <div className="space-y-4">
                       <div>
                         <label className="block mb-2 text-sm font-medium text-gray-700">Business Name</label>
                         <input
@@ -215,11 +209,10 @@ export default function EmployeeProfile() {
                           value={formData.businessName}
                           onChange={handleInputChange}
                           placeholder="Enter business name"
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                         />
                       </div>
 
-                      {/* Contact Person */}
                       <div>
                         <label className="block mb-2 text-sm font-medium text-gray-700">Contact Person</label>
                         <input
@@ -228,11 +221,10 @@ export default function EmployeeProfile() {
                           value={formData.contactPerson}
                           onChange={handleInputChange}
                           placeholder="Enter contact person name"
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                         />
                       </div>
 
-                      {/* Phone */}
                       <div>
                         <label className="block mb-2 text-sm font-medium text-gray-700">Phone Number</label>
                         <input
@@ -241,11 +233,10 @@ export default function EmployeeProfile() {
                           value={formData.phone}
                           onChange={handleInputChange}
                           placeholder="Enter phone number"
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                         />
                       </div>
 
-                      {/* Address */}
                       <div>
                         <label className="block mb-2 text-sm font-medium text-gray-700">Address</label>
                         <textarea
@@ -254,16 +245,30 @@ export default function EmployeeProfile() {
                           onChange={handleInputChange}
                           placeholder="Enter complete address"
                           rows={3}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          className="w-full px-4 py-2.5 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                         />
                       </div>
 
-                      {/* Action Buttons */}
-                      <div className="flex gap-4 pt-4">
+                      {/* Alerts in Edit Mode - Show above buttons */}
+                      {success && (
+                        <div className="flex items-center gap-3 p-4 border border-green-200 rounded-lg bg-green-50">
+                          <CheckCircle className="flex-shrink-0 w-5 h-5 text-green-600" />
+                          <p className="text-sm font-medium text-green-800">{success}</p>
+                        </div>
+                      )}
+
+                      {error && (
+                        <div className="flex items-center gap-3 p-4 border border-red-200 rounded-lg bg-red-50">
+                          <AlertCircle className="flex-shrink-0 w-5 h-5 text-red-600" />
+                          <p className="text-sm font-medium text-red-800">{error}</p>
+                        </div>
+                      )}
+
+                      <div className="flex gap-3 pt-4">
                         <button
                           onClick={handleSave}
                           disabled={isSaving}
-                          className="inline-flex items-center justify-center flex-1 gap-2 px-6 py-3 font-semibold text-white transition-all rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                         >
                           {isSaving ? (
                             <>
@@ -280,7 +285,7 @@ export default function EmployeeProfile() {
                         <button
                           onClick={handleCancel}
                           disabled={isSaving}
-                          className="inline-flex items-center justify-center flex-1 gap-2 px-6 py-3 font-semibold text-gray-700 transition-colors bg-gray-100 rounded-lg hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                         >
                           <X className="w-4 h-4" />
                           Cancel
@@ -288,83 +293,49 @@ export default function EmployeeProfile() {
                       </div>
                     </div>
                   ) : (
-                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                      {/* Business Name */}
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                       <div>
                         <label className="block mb-2 text-sm font-medium text-gray-600">Business Name</label>
-                        <p className="px-4 py-3 text-lg font-medium text-gray-900 border border-gray-200 rounded-lg bg-gray-50">
+                        <p className="px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 text-sm">
                           {profile.businessName || "Not provided"}
                         </p>
                       </div>
 
-                      {/* Contact Person */}
                       <div>
                         <label className="block mb-2 text-sm font-medium text-gray-600">Contact Person</label>
-                        <p className="px-4 py-3 text-lg font-medium text-gray-900 border border-gray-200 rounded-lg bg-gray-50">
+                        <p className="px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 text-sm">
                           {profile.contactPerson || "Not provided"}
                         </p>
                       </div>
 
-                      {/* Phone */}
                       <div>
                         <label className="block mb-2 text-sm font-medium text-gray-600">Phone Number</label>
-                        <div className="flex items-center gap-3 px-4 py-3 border border-gray-200 rounded-lg bg-gray-50">
-                          <Phone className="w-5 h-5 text-gray-400" />
-                          <p className="text-lg font-medium text-gray-900">{profile.phone || "Not provided"}</p>
+                        <div className="flex items-center gap-2 px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg">
+                          <Phone className="flex-shrink-0 w-4 h-4 text-gray-400" />
+                          <p className="text-sm text-gray-900">{profile.phone || "Not provided"}</p>
                         </div>
                       </div>
 
-                      {/* Address */}
                       <div>
                         <label className="block mb-2 text-sm font-medium text-gray-600">Address</label>
-                        <div className="flex items-start gap-3 px-4 py-3 border border-gray-200 rounded-lg bg-gray-50">
-                          <MapPin className="w-5 h-5 text-gray-400 mt-0.5 flex-shrink-0" />
-                          <p className="font-medium text-gray-900">{profile.address || "Not provided"}</p>
+                        <div className="flex items-start gap-2 px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg">
+                          <MapPin className="w-4 h-4 text-gray-400 flex-shrink-0 mt-0.5" />
+                          <p className="text-sm text-gray-900">{profile.address || "Not provided"}</p>
                         </div>
                       </div>
                     </div>
                   )}
                 </div>
 
-                {/* Additional Info Section */}
-                <div className="pt-8 border-t border-gray-200">
-                  <h3 className="flex items-center gap-2 mb-6 text-lg font-semibold text-gray-900">
-                    <Users className="w-5 h-5 text-blue-600" />
-                    Account Details
-                  </h3>
-                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                    {/* Created Date */}
-                    <div>
-                      <label className="block mb-2 text-sm font-medium text-gray-600">Account Created</label>
-                      <p className="px-4 py-3 font-medium text-gray-900 border border-gray-200 rounded-lg bg-gray-50">
-                        {profile.createdAt ? new Date(profile.createdAt).toLocaleDateString('en-US', {
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric'
-                        }) : "N/A"}
-                      </p>
-                    </div>
+                <hr className="border-gray-200" />
 
-                    {/* Last Updated */}
-                    <div>
-                      <label className="block mb-2 text-sm font-medium text-gray-600">Last Updated</label>
-                      <p className="px-4 py-3 font-medium text-gray-900 border border-gray-200 rounded-lg bg-gray-50">
-                        {profile.updatedAt ? new Date(profile.updatedAt).toLocaleDateString('en-US', {
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric'
-                        }) : "N/A"}
-                      </p>
-                    </div>
-                  </div>
-                </div>
 
               </div>
             </div>
           )}
 
         </div>
-      </div>
+   
     </EmpLayout>
   );
 }

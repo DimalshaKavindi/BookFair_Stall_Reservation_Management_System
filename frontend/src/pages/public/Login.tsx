@@ -72,9 +72,9 @@ export default function LoginPage() {
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0e1a4f] via-[#123c8c] to-[#0f9ed6] p-4">
             <div className="w-full max-w-md">
-                <div className="text-center mb-6 md:mb-8">
+                <div className="mb-6 text-center md:mb-8">
                     <div className="inline-flex items-center justify-center w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br from-[#4dd9e8] to-[#2ab7c9] rounded-full mb-3 md:mb-4 shadow-lg">
-                        <div className="relative flex items-center justify-center w-full h-12 md:h-16 p-1 md:p-2 rounded-md">
+                        <div className="relative flex items-center justify-center w-full h-12 p-1 rounded-md md:h-16 md:p-2">
                             <img
                                 src="/Logo.png"
                                 alt="CIBF"
@@ -82,30 +82,30 @@ export default function LoginPage() {
                             />
                         </div>
                     </div>
-                    <h1 className="text-xl md:text-3xl font-bold text-white mb-1 md:mb-2">COLOMBO INTERNATIONAL</h1>
+                    <h1 className="mb-1 text-xl font-bold text-white md:text-3xl md:mb-2">COLOMBO INTERNATIONAL</h1>
                     <h2 className="text-2xl md:text-4xl font-bold bg-gradient-to-r from-[#4dd9e8] to-[#2ab7c9] bg-clip-text text-transparent">BOOK FAIR</h2>
                 </div>
 
-                <div className="bg-white rounded-xl md:rounded-2xl shadow-xl md:shadow-2xl p-6 md:p-8">
+                <div className="p-6 bg-white shadow-xl rounded-xl md:rounded-2xl md:shadow-2xl md:p-8">
                     <h3 className="text-xl md:text-2xl font-bold text-[#1e2875] mb-4 md:mb-6 text-center">Welcome Back</h3>
 
                     {/* Error Message */}
                     {error && (
-                        <div className="mb-4 p-3 md:p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2 md:gap-3">
+                        <div className="flex items-start gap-2 p-3 mb-4 border border-red-200 rounded-lg md:p-4 bg-red-50 md:gap-3">
                             <AlertCircle className="text-red-500 flex-shrink-0 mt-0.5" size={20} />
-                            <p className="text-sm md:text-base text-red-700 font-medium">{error}</p>
+                            <p className="text-sm font-medium text-red-700 md:text-base">{error}</p>
                         </div>
                     )}
 
                     {/* Success Message */}
                     {success && (
-                        <div className="mb-4 p-3 md:p-4 bg-green-50 border border-green-200 rounded-lg flex items-start gap-2 md:gap-3">
+                        <div className="flex items-start gap-2 p-3 mb-4 border border-green-200 rounded-lg md:p-4 bg-green-50 md:gap-3">
                             <CheckCircle className="text-green-500 flex-shrink-0 mt-0.5" size={20} />
-                            <p className="text-sm md:text-base text-green-700 font-medium">Login successful! Redirecting...</p>
+                            <p className="text-sm font-medium text-green-700 md:text-base">Login successful! Redirecting...</p>
                         </div>
                     )}
 
-                    <div className="flex gap-1 md:gap-2 mb-4 md:mb-6 bg-gray-100 rounded-lg p-1">
+                    <div className="flex gap-1 p-1 mb-4 bg-gray-100 rounded-lg md:gap-2 md:mb-6">
                         <button
                             type="button"
                             onClick={() => setUserType('vendor')}
@@ -134,7 +134,7 @@ export default function LoginPage() {
 
                     <form onSubmit={handleSubmit} className="space-y-4 md:space-y-5">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                            <label className="block mb-2 text-sm font-medium text-gray-700">
                                 Email Address
                             </label>
                             <input
@@ -148,7 +148,7 @@ export default function LoginPage() {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                            <label className="block mb-2 text-sm font-medium text-gray-700">
                                 Password
                             </label>
                             <div className="relative">
@@ -163,7 +163,7 @@ export default function LoginPage() {
                                 <button
                                     type="button"
                                     onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-2 md:right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                                    className="absolute text-gray-500 -translate-y-1/2 right-2 md:right-3 top-1/2 hover:text-gray-700"
                                     disabled={isLoading}
                                 >
                                     {showPassword ? <EyeOff size={18} className="md:w-5" /> : <Eye size={18} className="md:w-5" />}
@@ -200,7 +200,7 @@ export default function LoginPage() {
                         </button>
                     </form>
 
-                    <div className="mt-4 md:mt-6 text-center text-xs md:text-sm text-gray-600">
+                    <div className="mt-4 text-xs text-center text-gray-600 md:mt-6 md:text-sm">
                         Don't have an account?{' '}
                         <button 
                             onClick={() => navigate('/register')}

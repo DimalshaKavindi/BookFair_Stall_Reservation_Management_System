@@ -93,7 +93,7 @@ export default function VendorLayout({ children }: VendorLayoutProps) {
                     className="object-contain w-[40px] h-[40px] md:w-[65px] md:h-[65px] p-1 md:p-2"
                 />
                 <div>
-                    <h1 className="text-base  md:text-xl lg:text-2xl font-bold text-white">
+                    <h1 className="text-base font-bold text-white md:text-xl lg:text-2xl">
                     Colombo International Book Fair
                     </h1>
                     <p className="text-xs text-[#4dd9e8] hidden sm:block">
@@ -101,7 +101,7 @@ export default function VendorLayout({ children }: VendorLayoutProps) {
                     </p>
                 </div>
                 </div>
-                <nav className="hidden md:flex items-center gap-1">
+                <nav className="items-center hidden gap-1 md:flex">
                 {navItems.map((item) => {
                     const active = isActive(item.path);
                     return (
@@ -126,7 +126,7 @@ export default function VendorLayout({ children }: VendorLayoutProps) {
                     >
                     <div className="w-6 h-6 md:w-9 md:h-9 rounded-full bg-gradient-to-br from-[#4dd9e8] to-[#2ab7c9] flex items-center justify-center text-white font-semibold text-sm shadow-md">
                         {loading ? (
-                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        <div className="w-4 h-4 border-2 rounded-full border-white/30 border-t-white animate-spin" />
                         ) : (
                         getInitials(displayName)
                         )}
@@ -142,7 +142,7 @@ export default function VendorLayout({ children }: VendorLayoutProps) {
                     </button>
 
                     {profileDropdownOpen && (
-                    <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                    <div className="absolute right-0 z-50 w-56 py-2 mt-2 duration-200 bg-white border border-gray-100 shadow-lg rounded-xl animate-in fade-in slide-in-from-top-2">
                         <div className="px-4 py-3 border-b border-gray-100">
                         <p className="text-sm font-semibold text-gray-900 truncate">
                             {displayName}
@@ -178,14 +178,14 @@ export default function VendorLayout({ children }: VendorLayoutProps) {
                 </div>
                 </nav>
 
-                <div className="md:hidden flex items-center gap-2">
+                <div className="flex items-center gap-2 md:hidden">
                 <button
                     onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
                     className="relative"
                 >
                     <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#4dd9e8] to-[#2ab7c9] flex items-center justify-center text-white font-semibold text-sm shadow-md">
                     {loading ? (
-                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        <div className="w-4 h-4 border-2 rounded-full border-white/30 border-t-white animate-spin" />
                     ) : (
                         getInitials(displayName)
                     )}
@@ -194,7 +194,7 @@ export default function VendorLayout({ children }: VendorLayoutProps) {
 
                 <button
                     onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                    className="p-2 rounded-lg hover:bg-white/10 transition-colors"
+                    className="p-2 transition-colors rounded-lg hover:bg-white/10"
                 >
                     {mobileMenuOpen ? (
                     <X className="w-6 h-6 text-white" />
@@ -206,7 +206,7 @@ export default function VendorLayout({ children }: VendorLayoutProps) {
             </div>
 
             {profileDropdownOpen && (
-                <div className="md:hidden absolute right-4 top-16 w-56 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50">
+                <div className="absolute z-50 w-56 py-2 bg-white border border-gray-100 shadow-lg md:hidden right-4 top-16 rounded-xl">
                 <div className="px-4 py-3 border-b border-gray-100">
                     <p className="text-sm font-semibold text-gray-900 truncate">
                     {displayName}
@@ -240,7 +240,7 @@ export default function VendorLayout({ children }: VendorLayoutProps) {
             )}
 
             {mobileMenuOpen && (
-                <div className="md:hidden py-4 border-t border-white/10">
+                <div className="py-4 border-t md:hidden border-white/10">
                 <nav className="flex flex-col gap-2">
                     {navItems.map((item) => {
                     const Icon = item.icon;
@@ -269,7 +269,7 @@ export default function VendorLayout({ children }: VendorLayoutProps) {
             </div>
         </header>
 
-        <main className="w-full px-4 sm:px-6 lg:px-8 py-8">
+        <main className="w-full px-4 py-8 sm:px-6 lg:px-8">
             {children}
         </main>
 

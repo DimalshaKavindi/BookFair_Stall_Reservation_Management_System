@@ -1,6 +1,5 @@
 import axios from 'axios';
-
-import type {  ProfileResponse, User, UserProfile, UserProfileResponse } from '../types/UserType';
+import type {  UserProfile, UserProfileResponse } from '../types/UserType';
 import type { Stall, StallResponse, StallsResponse } from '../types/StallType';
 import type { ReservationResponse, ReservationsResponse } from '../types/ReservationType';
 import type { ApiError } from '../types/Error';
@@ -166,9 +165,9 @@ export const reservationsAPI = {
 
 // Users API
 export const usersAPI = {
-  getProfile: async (): Promise<ProfileResponse> => {
+  getProfile: async (): Promise<UserProfileResponse> => {
     try {
-      const res = await api.get<ProfileResponse>("/users/profile");
+      const res = await api.get<UserProfileResponse>("/users/profile");
       return res.data;
     } catch (e) {
       handleError(e);
@@ -176,10 +175,10 @@ export const usersAPI = {
   },
 
   updateProfile: async (
-    data: Partial<Pick<User, "businessName" | "contactPerson" | "phone" | "address">>
-  ): Promise<ProfileResponse> => {
+    data: Partial<Pick<UserProfile, "businessName" | "contactPerson" | "phone" | "address">>
+  ): Promise<UserProfileResponse> => {
     try {
-      const res = await api.put<ProfileResponse>("/users/profile", data);
+      const res = await api.put<UserProfileResponse>("/users/profile", data);
       return res.data;
     } catch (e) {
       handleError(e);
