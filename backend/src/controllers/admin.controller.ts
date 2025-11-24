@@ -11,4 +11,14 @@ export async function listEmployees(_req: Request, res: Response) {
   res.json({ success: true, employees });
 }
 
+export async function createStall(req: Request, res: Response) {
+  const stall = await adminService.createStall(req.body);
+  res.status(201).json({ success: true, stall });
+}
+
+export async function listStalls(_req: Request, res: Response) {
+  const stalls = await adminService.listStalls();
+  res.json({ success: true, stalls });
+}
+
 

@@ -50,6 +50,38 @@ export function listEmployees() {
   });
 }
 
+type StallInput = {
+  name: string;
+  size: "SMALL" | "MEDIUM" | "LARGE";
+  dimensions: string;
+  location: string;
+  positionX: number;
+  positionY: number;
+  isAvailable?: boolean;
+};
+
+export async function createStall(data: StallInput) {
+  const stall = await prisma.stall.create({
+    data: {
+      name: data.name,
+      size: data.size,
+      dimensions: data.dimensions,
+      location: data.location,
+      positionX: data.positionX,
+      positionY: data.positionY,
+      isAvailable: data.isAvailable ?? true,
+    },
+  });
+
+  return stall;
+}
+
+export function listStalls() {
+  return prisma.stall.findMany({
+    orderBy: { id: "asc" },
+  });
+}
+
 
 
 
