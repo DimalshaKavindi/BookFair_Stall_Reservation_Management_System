@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { CheckCircle2, Warehouse, X } from 'lucide-react';
+import { CheckCircle2, X } from 'lucide-react';
 import StallMap from '../../components/StallMap';
 import { stallsAPI, reservationsAPI, userAPI } from '../../api/axios';
 import type { Stall } from '../../types/StallType';
@@ -13,8 +13,6 @@ export default function ReserveStalls() {
   const [reserving, setReserving] = useState(false);
   const [userReservations, setUserReservations] = useState<number>(0);
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
-
-  // Calculate counts based on the stalls data
   const availableCount = stalls.filter(stall => stall.isAvailable).length;
   const reservedCount = stalls.length - availableCount;
 
@@ -22,13 +20,11 @@ export default function ReserveStalls() {
     loadUserData();
   }, []);
 
-  // Load user data and then stalls/reservations
   const loadUserData = async () => {
     try {
       const userProfile = await userAPI.getProfile();
       setCurrentUser(userProfile);
       
-      // Now load stalls and reservations
       await Promise.all([
         loadStalls(),
         loadUserReservations(userProfile.id)
@@ -39,7 +35,6 @@ export default function ReserveStalls() {
     }
   };
 
-  // Load ALL stalls (both available and reserved)
   const loadStalls = async () => {
     try {
       const response = await stallsAPI.getAll();
@@ -50,14 +45,12 @@ export default function ReserveStalls() {
     }
   };
 
-  // Load user's reservation count using the existing getForUser method
   const loadUserReservations = async (userId: number) => {
     try {
       const response = await reservationsAPI.getForUser(userId);
       setUserReservations(response.reservations?.length || 0);
     } catch (error) {
       console.error('Failed to load user reservations:', error);
-      // Don't show alert for this as it's secondary information
     } finally {
       setLoading(false);
     }
@@ -86,8 +79,6 @@ export default function ReserveStalls() {
         setShowConfirmation(false);
         setSelectedStall(null);
         await loadStalls();
-        
-        // Refresh user reservation count if we have the user ID
         if (currentUser) {
           await loadUserReservations(currentUser.id);
         }
@@ -142,44 +133,31 @@ export default function ReserveStalls() {
         </div>
       </div>
 
-      {/* Updated Stats Section with vertical separators */}
       <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
         <div className="flex items-center justify-center gap-0">
-          {/* Total Stalls */}
           <div className="flex flex-col items-center justify-center px-8 py-4">
             <span className="text-2xl font-bold text-gray-900">{stalls.length}</span>
             <span className="text-sm text-gray-600 font-medium">Total Stalls</span>
           </div>
-
-          {/* Vertical Separator */}
           <div className="h-12 w-px bg-gray-300"></div>
-
-          {/* Available Stalls */}
           <div className="flex flex-col items-center justify-center px-8 py-4">
             <span className="text-2xl font-bold text-green-600">{availableCount}</span>
             <span className="text-sm text-gray-600 font-medium">Available</span>
           </div>
-
-          {/* Vertical Separator */}
           <div className="h-12 w-px bg-gray-300"></div>
 
-          {/* Reserved Stalls */}
           <div className="flex flex-col items-center justify-center px-8 py-4">
             <span className="text-2xl font-bold text-red-600">{reservedCount}</span>
             <span className="text-sm text-gray-600 font-medium">Reserved</span>
           </div>
 
-          {/* Vertical Separator */}
           <div className="h-12 w-px bg-gray-300"></div>
-
-          {/* User's Reservations */}
           <div className="flex flex-col items-center justify-center px-8 py-4">
             <span className="text-2xl font-bold text-blue-600">{userReservations}</span>
             <span className="text-sm text-gray-600 font-medium">Your Reservations</span>
           </div>
         </div>
 
-        {/* Progress indicator for user's reservations */}
         <div className="mt-4">
           <div className="flex items-center justify-between text-xs text-gray-600 mb-1">
             <span>Your reservation progress</span>
@@ -193,8 +171,6 @@ export default function ReserveStalls() {
           </div>
         </div>
       </div>
-
-      {/* StallMap component */}
       <StallMap 
         stalls={stalls}
         selectedStalls={selectedStall ? [selectedStall] : []}
@@ -202,7 +178,6 @@ export default function ReserveStalls() {
         showLegend={false}
       />
       
-      {/* Confirmation Modal */}
       {showConfirmation && selectedStall && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 relative overflow-y-auto max-h-[96vh]">
@@ -214,7 +189,6 @@ export default function ReserveStalls() {
               <X className="w-5 h-5" />
             </button>
 
-            {/* Header */}
             <div className="text-center mb-4">
               <div className="w-10 h-10 md:w-14 md:h-14 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2">
                 <CheckCircle2 className="w-6 h-6 md:w-8 md:h-8 text-blue-600" />
@@ -223,7 +197,6 @@ export default function ReserveStalls() {
               <p className="text-sm md:text-base text-gray-600">Review your stall selection before confirming</p>
             </div>
 
-            {/* Selected Stall Details */}
             <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl py-3 px-5 md:py-4 md:px-6 mb-4 border-2 border-blue-200">
               <div className="flex items-start justify-between mb-2">
                 <div>
@@ -264,7 +237,6 @@ export default function ReserveStalls() {
               </div>
             </div>
 
-            {/* User Reservation Status */}
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-blue-800 font-medium">Your current reservations:</span>
@@ -278,14 +250,12 @@ export default function ReserveStalls() {
               </div>
             </div>
 
-            {/* Info Note */}
             <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-6">
               <p className="text-xs md:text-sm text-amber-800">
                 <strong>Note:</strong> A confirmation email with QR code will be sent to your registered email address. Each stall reservation generates a unique QR code.
               </p>
             </div>
 
-            {/* Action Buttons */}
             <div className="flex gap-3">
               <button
                 onClick={handleCloseModal}
@@ -313,7 +283,6 @@ export default function ReserveStalls() {
               </button>
             </div>
 
-            {/* Max reservation warning */}
             {userReservations >= 3 && (
               <div className="mt-3 p-2 bg-red-50 border border-red-200 rounded-lg">
                 <p className="text-xs text-red-700 text-center">

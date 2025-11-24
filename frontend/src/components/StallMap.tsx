@@ -92,8 +92,6 @@ const handleStallClick = (stall: Stall) => {
     onStallClick?.(stall);
 };
 
-const availableCount = stalls.filter(s => s.isAvailable).length;
-const reservedCount = stalls.length - availableCount;
 
 const groupStallsByRow = () => {
     const rows = new Map<number, Stall[]>();
