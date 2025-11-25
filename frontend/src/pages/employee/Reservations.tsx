@@ -1,18 +1,18 @@
-// pages/employee/Reservations.tsx
 import {
   AlertCircle,
   ChevronDown,
   Download,
-  Eye,
   Filter,
   Loader2,
   Search,
-  X
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { reservationsAPI } from "../../api/axios";
+import { reservationsAPI, stallsAPI } from "../../api/axios";
 import EmpLayout from "../../layout/EmpLayout";
+import StallMap from "../../components/StallMap";
+import ReservationTable from "../../components/ReservationTable";
 import type { Reservation } from "../../types/ReservationType";
+import type { Stall } from "../../types/StallType";
 
 type FilterType = {
   status: string;
@@ -21,31 +21,36 @@ type FilterType = {
 
 export default function EmployeeReservations() {
   const [reservations, setReservations] = useState<Reservation[]>([]);
+  const [stalls, setStalls] = useState<Stall[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState<FilterType>({ status: "all", size: "all" });
   const [showFilters, setShowFilters] = useState(false);
+  const [selectedStallsForHighlight, setSelectedStallsForHighlight] = useState<Stall[]>([]);
 
   useEffect(() => {
-    loadReservations();
+    loadData();
   }, []);
 
-  const loadReservations = async () => {
+  const loadData = async () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await reservationsAPI.getAll();
-      setReservations(response.reservations);
+      const [reservationsRes, stallsRes] = await Promise.all([
+        reservationsAPI.getAll(),
+        stallsAPI.getAll()
+      ]);
+      setReservations(reservationsRes.reservations);
+      setStalls(stallsRes.stalls || []);
     } catch (err: any) {
-      setError(err.message || "Failed to load reservations");
-      console.error("Load reservations error:", err);
+      setError(err.message || "Failed to load data");
+      console.error("Load data error:", err);
     } finally {
       setLoading(false);
     }
   };
 
-  // Filtered reservations
   const filteredReservations = useMemo(() => {
     return reservations.filter((reservation) => {
       const matchesSearch =
@@ -63,6 +68,13 @@ export default function EmployeeReservations() {
       return matchesSearch && matchesStatus && matchesSize;
     });
   }, [reservations, searchQuery, filters]);
+
+  const reservedStalls = useMemo(() => {
+    return stalls.map(stall => ({
+      ...stall,
+      isAvailable: !reservations.some(r => r.stallId === stall.id && r.status === "ACTIVE")
+    }));
+  }, [stalls, reservations]);
 
   const exportToCSV = () => {
     const headers = ["Stall", "Business Name", "Email", "Size", "Status", "Contact Person", "Phone", "Date", "Genres"];
@@ -92,10 +104,13 @@ export default function EmployeeReservations() {
     window.URL.revokeObjectURL(url);
   };
 
-  const stats = {
-    total: reservations.length,
-    active: reservations.filter(r => r.status === "ACTIVE").length,
-    cancelled: reservations.filter(r => r.status === "CANCELLED").length
+  const handleStallClick = (stall: Stall) => {
+    const isSelected = selectedStallsForHighlight.find(s => s.id === stall.id);
+    if (isSelected) {
+      setSelectedStallsForHighlight(selectedStallsForHighlight.filter(s => s.id !== stall.id));
+    } else {
+      setSelectedStallsForHighlight([...selectedStallsForHighlight, stall]);
+    }
   };
 
   if (loading) {
@@ -120,7 +135,7 @@ export default function EmployeeReservations() {
             <div>
               <p className="font-medium text-red-700">{error}</p>
               <button
-                onClick={loadReservations}
+                onClick={loadData}
                 className="mt-2 text-sm text-red-600 underline hover:text-red-700"
               >
                 Try again
@@ -136,29 +151,29 @@ export default function EmployeeReservations() {
     <EmpLayout>
       <div className="mx-auto max-w-7xl">
         {/* Header Section */}
-        <div className="mb-6">
-          <h2 className="mb-2 text-2xl font-bold text-gray-900">
-            All Reservations
-          </h2>
-          <p className="text-gray-600">
-            Manage and view all stall reservations
-          </p>
+        <div className="p-6 mb-6 bg-white border border-gray-100 shadow-sm rounded-xl">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <h1 className="flex items-center gap-3 text-3xl font-bold text-gray-900">
+                All Reservations
+              </h1>
+              <p className="mt-2 text-gray-600">
+                Manage and view all stall reservations
+              </p>
+            </div>
+          </div>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 gap-4 mb-6 sm:grid-cols-3">
-          <div className="bg-white rounded-lg p-4 border border-[#4dd9e8]/20 shadow-sm">
-            <p className="mb-1 text-sm text-gray-600">Total Reservations</p>
-            <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
-          </div>
-          <div className="p-4 bg-white border border-green-200 rounded-lg shadow-sm">
-            <p className="mb-1 text-sm text-gray-600">Active</p>
-            <p className="text-2xl font-bold text-green-600">{stats.active}</p>
-          </div>
-          <div className="p-4 bg-white border border-red-200 rounded-lg shadow-sm">
-            <p className="mb-1 text-sm text-gray-600">Cancelled</p>
-            <p className="text-2xl font-bold text-red-600">{stats.cancelled}</p>
-          </div>
+        {/* Stall Map */}
+        <div className="mb-6">
+          <StallMap 
+            stalls={reservedStalls}
+            selectedStalls={selectedStallsForHighlight}
+            onStallClick={handleStallClick}
+            readOnly={true}
+            showLegend={true}
+            highlightReserved={true}
+          />
         </div>
 
         {/* Search and Filter Section */}
@@ -240,229 +255,8 @@ export default function EmployeeReservations() {
           </p>
         </div>
 
-        {/* Reservations Table - Desktop */}
-        <div className="hidden lg:block bg-white rounded-xl border border-[#4dd9e8]/20 shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="border-b border-gray-200 bg-gray-50">
-                <tr>
-                  <th className="px-6 py-4 text-xs font-semibold tracking-wider text-left text-gray-700 uppercase">
-                    Stall
-                  </th>
-                  <th className="px-6 py-4 text-xs font-semibold tracking-wider text-left text-gray-700 uppercase">
-                    Business
-                  </th>
-                  <th className="px-6 py-4 text-xs font-semibold tracking-wider text-left text-gray-700 uppercase">
-                    Email
-                  </th>
-                  <th className="px-6 py-4 text-xs font-semibold tracking-wider text-left text-gray-700 uppercase">
-                    Contact Person
-                  </th>
-                  <th className="px-6 py-4 text-xs font-semibold tracking-wider text-left text-gray-700 uppercase">
-                    Phone Number
-                  </th>
-                  <th className="px-6 py-4 text-xs font-semibold tracking-wider text-left text-gray-700 uppercase">
-                    Size
-                  </th>
-                  <th className="px-6 py-4 text-xs font-semibold tracking-wider text-left text-gray-700 uppercase">
-                    Reservation Date
-                  </th>
-                  <th className="px-6 py-4 text-xs font-semibold tracking-wider text-left text-gray-700 uppercase">
-                    Literary Genres
-                  </th>
-                  <th className="px-6 py-4 text-xs font-semibold tracking-wider text-left text-gray-700 uppercase">
-                    Status
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {filteredReservations.length === 0 ? (
-                  <tr>
-                    <td colSpan={9} className="px-6 py-12 text-center">
-                      <div className="flex flex-col items-center gap-2">
-                        <Search className="w-12 h-12 text-gray-300" />
-                        <p className="font-medium text-gray-500">No reservations found</p>
-                        <p className="text-sm text-gray-400">Try adjusting your search or filters</p>
-                      </div>
-                    </td>
-                  </tr>
-                ) : (
-                  filteredReservations.map((reservation) => (
-                    <tr
-                      key={reservation.id}
-                      className="transition-colors hover:bg-gray-50"
-                    >
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center justify-center px-3 py-1.5 bg-gradient-to-br from-[#4dd9e8] to-[#2ab7c9] text-white font-bold rounded-lg text-sm shadow-sm">
-                          {reservation.stall?.name || `#${reservation.stallId}`}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="font-medium text-gray-900">
-                          {reservation.user?.businessName || "N/A"}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-700">
-                          {reservation.user?.email || "N/A"}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-700">
-                          {reservation.user?.contactPerson || "N/A"}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-700">
-                          {reservation.user?.phone || "N/A"}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          reservation.stall?.size === "LARGE"
-                            ? "bg-purple-100 text-purple-800"
-                            : reservation.stall?.size === "MEDIUM"
-                            ? "bg-blue-100 text-blue-800"
-                            : "bg-gray-100 text-gray-800"
-                        }`}>
-                          {reservation.stall?.size || "N/A"}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-700">
-                          {new Date(reservation.reservationDate || reservation.createdAt).toLocaleDateString()}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex flex-wrap max-w-xs gap-1">
-                          {reservation.literaryGenres && reservation.literaryGenres.length > 0 ? (
-                            reservation.literaryGenres.slice(0, 2).map((genre: string, index: number) => (
-                              <span
-                                key={index}
-                                className="px-2 py-0.5 bg-gradient-to-r from-[#4dd9e8]/20 to-[#2ab7c9]/20 text-[#1e2875] border border-[#4dd9e8]/30 rounded-full text-xs font-medium"
-                              >
-                                {genre}
-                              </span>
-                            ))
-                          ) : (
-                            <span className="text-xs italic text-gray-400">None</span>
-                          )}
-                          {reservation.literaryGenres && reservation.literaryGenres.length > 2 && (
-                            <span className="px-2 py-0.5 text-xs text-gray-600">
-                              +{reservation.literaryGenres.length - 2}
-                            </span>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          reservation.status === "ACTIVE"
-                            ? "bg-green-100 text-green-800"
-                            : "bg-red-100 text-red-800"
-                        }`}>
-                          {reservation.status}
-                        </span>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        {/* Reservations Cards - Mobile/Tablet */}
-        <div className="grid grid-cols-1 gap-4 lg:hidden">
-          {filteredReservations.length === 0 ? (
-            <div className="bg-white rounded-xl border border-[#4dd9e8]/20 shadow-sm p-12 text-center">
-              <Search className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-              <p className="font-medium text-gray-500">No reservations found</p>
-              <p className="text-sm text-gray-400">Try adjusting your search or filters</p>
-            </div>
-          ) : (
-            filteredReservations.map((reservation) => (
-              <div
-                key={reservation.id}
-                className="bg-white rounded-xl border border-[#4dd9e8]/20 shadow-sm p-4 space-y-4"
-              >
-                {/* Header */}
-                <div className="flex items-center justify-between">
-                  <span className="inline-flex items-center justify-center px-3 py-1.5 bg-gradient-to-br from-[#4dd9e8] to-[#2ab7c9] text-white font-bold rounded-lg text-sm shadow-sm">
-                    {reservation.stall?.name || `#${reservation.stallId}`}
-                  </span>
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                    reservation.status === "ACTIVE"
-                      ? "bg-green-100 text-green-800"
-                      : "bg-red-100 text-red-800"
-                  }`}>
-                    {reservation.status}
-                  </span>
-                </div>
-
-                {/* Business Info */}
-                <div className="space-y-2">
-                  <div>
-                    <p className="text-xs text-gray-600">Business Name</p>
-                    <p className="font-medium text-gray-900">{reservation.user?.businessName || "N/A"}</p>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-xs text-gray-600">Contact Person</p>
-                      <p className="text-sm text-gray-900">{reservation.user?.contactPerson || "N/A"}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-600">Phone</p>
-                      <p className="text-sm text-gray-900">{reservation.user?.phone || "N/A"}</p>
-                    </div>
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-600">Email</p>
-                    <p className="text-sm text-gray-900">{reservation.user?.email || "N/A"}</p>
-                  </div>
-                </div>
-
-                {/* Additional Info */}
-                <div className="flex items-center gap-4 pt-3 border-t border-gray-200">
-                  <div>
-                    <p className="text-xs text-gray-600">Size</p>
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      reservation.stall?.size === "LARGE"
-                        ? "bg-purple-100 text-purple-800"
-                        : reservation.stall?.size === "MEDIUM"
-                        ? "bg-blue-100 text-blue-800"
-                        : "bg-gray-100 text-gray-800"
-                    }`}>
-                      {reservation.stall?.size || "N/A"}
-                    </span>
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-600">Reservation Date</p>
-                    <p className="text-sm text-gray-900">
-                      {new Date(reservation.reservationDate || reservation.createdAt).toLocaleDateString()}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Literary Genres */}
-                {reservation.literaryGenres && reservation.literaryGenres.length > 0 && (
-                  <div>
-                    <p className="mb-2 text-xs text-gray-600">Literary Genres</p>
-                    <div className="flex flex-wrap gap-1">
-                      {reservation.literaryGenres.map((genre: string, index: number) => (
-                        <span
-                          key={index}
-                          className="px-2 py-0.5 bg-gradient-to-r from-[#4dd9e8]/20 to-[#2ab7c9]/20 text-[#1e2875] border border-[#4dd9e8]/30 rounded-full text-xs font-medium"
-                        >
-                          {genre}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            ))
-          )}
-        </div>
+        {/* Reservations Table */}
+        <ReservationTable reservations={filteredReservations} />
       </div>
     </EmpLayout>
   );

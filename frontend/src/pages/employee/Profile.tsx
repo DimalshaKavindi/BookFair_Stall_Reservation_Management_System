@@ -1,4 +1,4 @@
-// pages/employee/Profile.tsx
+
 import { useEffect, useState } from "react";
 import {
   User,
@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { usersAPI } from "../../api/axios";
 import EmpLayout from "../../layout/EmpLayout";
-import type { User as UserType } from "../../types/UserType";
+import type { UserProfile as UserType } from "../../types/UserType";
 
 export default function EmployeeProfile() {
   const [profile, setProfile] = useState<UserType | null>(null);
@@ -110,7 +110,7 @@ export default function EmployeeProfile() {
           
        
 
-          {/* Alerts - Only show when NOT editing */}
+       
           {!isEditing && success && (
             <div className="flex items-center gap-3 p-4 mb-6 border border-green-200 rounded-lg bg-green-50">
               <CheckCircle className="flex-shrink-0 w-5 h-5 text-green-600" />
@@ -125,11 +125,11 @@ export default function EmployeeProfile() {
             </div>
           )}
 
-          {/* Profile Card */}
+     
           {profile && (
             <div className="overflow-hidden bg-white border border-gray-200 shadow-sm rounded-xl">
               
-              {/* Header Section */}
+         
               <div className="bg-gradient-to-br from-[#1a2f8d] via-[#1f52b1] to-[#0d91c5] rounded-xl p-8 text-white shadow-[0_0_20px_rgba(77,217,232,0.4)]">
                 <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
                   <div className="flex items-center gap-4">
@@ -154,10 +154,9 @@ export default function EmployeeProfile() {
                 </div>
               </div>
 
-              {/* Content Section */}
               <div className="p-6 space-y-8 sm:p-8">
                 
-                {/* Account Information */}
+             
                 <div>
                   <h3 className="flex items-center gap-2 mb-6 text-lg font-semibold text-gray-900">
                     <Mail className="w-5 h-5 text-blue-600" />
@@ -192,7 +191,7 @@ export default function EmployeeProfile() {
 
                 <hr className="border-gray-200" />
 
-                {/* Business Information */}
+              
                 <div>
                   <h3 className="flex items-center gap-2 mb-6 text-lg font-semibold text-gray-900">
                     <Building2 className="w-5 h-5 text-blue-600" />
@@ -249,7 +248,7 @@ export default function EmployeeProfile() {
                         />
                       </div>
 
-                      {/* Alerts in Edit Mode - Show above buttons */}
+                   
                       {success && (
                         <div className="flex items-center gap-3 p-4 border border-green-200 rounded-lg bg-green-50">
                           <CheckCircle className="flex-shrink-0 w-5 h-5 text-green-600" />
