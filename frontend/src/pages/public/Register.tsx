@@ -12,7 +12,7 @@ export default function RegisterPage() {
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [success, setSuccess] = useState(false);
+    const [success] = useState(false);
     
     const [formData, setFormData] = useState({
         businessName: '',
@@ -83,9 +83,7 @@ export default function RegisterPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setError(null);
-        setSuccess(false);
-
+        
         if (!validateForm()) {
             return;
         }
@@ -102,8 +100,6 @@ export default function RegisterPage() {
             };
 
             await authAPI.registerVendor(registrationData);
-            setSuccess(true);
-            setError(null);
             showToastSuccess('Registration successful! Welcome to Colombo International Book Fair!');
             
             setTimeout(() => {
@@ -113,8 +109,6 @@ export default function RegisterPage() {
         } catch (err: any) {
             const apiError = err as ApiError;
             const errorMessage = apiError.message || 'Registration failed. Please try again.';
-            setError(errorMessage);
-            setSuccess(false);
             showToastError(errorMessage);
         } finally {
             setIsLoading(false);
