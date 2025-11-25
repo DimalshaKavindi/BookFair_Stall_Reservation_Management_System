@@ -1,9 +1,9 @@
 import axios from 'axios';
-import type {  UserProfile, UserProfileResponse } from '../types/UserType';
-import type { Stall, StallResponse, StallsResponse } from '../types/StallType';
-import type { ReservationResponse, ReservationsResponse } from '../types/ReservationType';
 import type { ApiError } from '../types/Error';
 import type { RegisterResponse, RegisterVendorData } from '../types/RegisterType';
+import type { ReservationResponse, ReservationsResponse } from '../types/ReservationType';
+import type { Stall, StallResponse, StallsResponse } from '../types/StallType';
+import type { UserProfile, UserProfileResponse } from '../types/UserType';
 
 
 const API_BASE_URL = "http://localhost:4000/api";
@@ -71,9 +71,9 @@ export const authAPI = {
         }
     },
 
-    login: async (email: string, password: string, userType: 'vendor' | 'employee') => {
+    login: async (email: string, password: string, userType: 'vendor' | 'employee'|'admin') => {
         try {
-        const endpoint = userType === 'employee' ? '/auth/employee/login' : '/auth/login';
+        const endpoint = userType === 'employee' ? '/auth/employee/login' : userType === 'admin' ? 'auth/admin/login' : '/auth/login';
         const response = await api.post(endpoint, { email, password });
         if (response.data.token) {
             sessionStorage.setItem('authToken', response.data.token);
@@ -223,7 +223,60 @@ export const userAPI = {
         }
     },
 };
+export const adminAPI = {
+  // Employee Management
+  createEmployee: async (data: {
+    email: string;
+    password: string;
+    businessName: string;
+    contactPerson: string;
+    phone: string;
+    address: string;
+  }) => {
+    try {
+      const response = await api.post('/admin/employees', data);
+      return response.data;
+    } catch (error: any) {
+      handleError(error);
+    }
+  },
 
+  getEmployees: async () => {
+    try {
+      const response = await api.get('/admin/employees');
+      return response.data;
+    } catch (error: any) {
+      handleError(error);
+    }
+  },
+
+  // Stall Management
+  createStall: async (data: {
+    name: string;
+    size: 'SMALL' | 'MEDIUM' | 'LARGE';
+    dimensions: string;
+    location: string;
+    positionX: number;
+    positionY: number;
+    isAvailable?: boolean;
+  }) => {
+    try {
+      const response = await api.post('/admin/stalls', data);
+      return response.data;
+    } catch (error: any) {
+      handleError(error);
+    }
+  },
+
+  getStalls: async () => {
+    try {
+      const response = await api.get('/admin/stalls');
+      return response.data;
+    } catch (error: any) {
+      handleError(error);
+    }
+  },
+};
 
 
 export default api;

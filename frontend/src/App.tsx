@@ -9,6 +9,13 @@ import VendorLayout from './layout/VendorLayout';
 import VendorProfile from './pages/vendor/Profile';
 import EmployeeProfile from './pages/employee/Profile';
 import VendorDashboard from './pages/vendor/Dashboard';
+import AdminDashboard from './pages/admin/Dashboard';
+import AdminEmployees from './pages/admin/Employees';
+import CreateEmployee from './pages/admin/CreateEmployee';
+import AdminStalls from './pages/admin/Stalls';
+import CreateStall from './pages/admin/CreateStall';
+import AdminReservations from './pages/admin/Reservations';
+import AdminProfile from './pages/admin/Profile';
 
 function App() {
   return (
@@ -25,6 +32,22 @@ function App() {
         <Route path="/employee/dashboard" element={<EmployeeDashboard/>} />
         <Route path="/employee/reservations" element={<EmployeeReservations/>} />
         <Route path="/employee/profile" element={<EmployeeProfile/>} />
+
+         {/* Admin Routes */}
+        <Route path="/admin/dashboard" element={<AdminDashboard/>} />
+        
+        {/* Admin - Employees Management */}
+        <Route path="/admin/employees" element={<AdminEmployees/>} />
+        <Route path="/admin/employees/create" element={<CreateEmployee/>} />
+        
+        {/* Admin - Stalls Management */}
+        <Route path="/admin/stalls" element={<AdminStalls/>} />
+        <Route path="/admin/stalls/create" element={<CreateStall/>} />
+        
+        {/* Admin - Reservations & Map */}
+        <Route path="/admin/reservations" element={<AdminReservations/>} />
+        <Route path="/admin/profile" element={<AdminProfile/>} />
+        
        
       </Routes>
     </div>

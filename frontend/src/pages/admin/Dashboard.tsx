@@ -1,76 +1,77 @@
-
+// pages/admin/Dashboard.tsx
 import {
   Award,
   Calendar,
   CheckCircle,
   LayoutGrid,
-  List,
   Loader2,
   Store,
   TrendingUp,
-  Users,
+  UserCog,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { reservationsAPI, stallsAPI } from "../../api/axios";
+import { adminAPI, reservationsAPI, stallsAPI } from "../../api/axios";
 import StatCard from "../../components/StatCard";
-import EmpLayout from "../../layout/EmpLayout";
+import AdminLayout from "../../layout/AdminLayout";
 import type { DashboardStats } from "../../types/DashboardStats";
 import type { Reservation } from "../../types/ReservationType";
 import type { Stall } from "../../types/StallType";
 
-export default function EmployeeDashboard() {
+export default function AdminDashboard() {
   const navigate = useNavigate();
   const [stats, setStats] = useState<DashboardStats>({
     total: 0, reserved: 0, available: 0, totalVendors: 0,
     smallReserved: 0, mediumReserved: 0, largeReserved: 0,
   });
   const [recentReservations, setRecentReservations] = useState<Reservation[]>([]);
+  const [employeeCount, setEmployeeCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const loadData = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        
-      
-        const [stallsRes, reservationsRes] = await Promise.all([
-          stallsAPI.getAll(),
-          reservationsAPI.getAll()
-        ]);
-
-        const stalls = stallsRes.stalls;
-        const reservations = reservationsRes.reservations;
-        const reserved = stalls.filter((s: Stall) => !s.isAvailable);
-        const uniqueVendors = new Set(
-          reservations
-            .filter((r: Reservation) => r.status === "ACTIVE")
-            .map((r: Reservation) => r.userId)
-        );
-
-        setStats({
-          total: stalls.length,
-          reserved: reserved.length,
-          available: stalls.filter((s: Stall) => s.isAvailable).length,
-          totalVendors: uniqueVendors.size,
-          smallReserved: reserved.filter((s: Stall) => s.size === "SMALL").length,
-          mediumReserved: reserved.filter((s: Stall) => s.size === "MEDIUM").length,
-          largeReserved: reserved.filter((s: Stall) => s.size === "LARGE").length,
-        });
-
-        setRecentReservations(reservations.slice(0, 5));
-      } catch (err: any) {
-        setError(err.message || "Failed to load dashboard data");
-        console.error("Dashboard error:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    
     loadData();
   }, []);
+
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const [stallsRes, reservationsRes, employeesRes] = await Promise.all([
+        stallsAPI.getAll(),
+        reservationsAPI.getAll(),
+        adminAPI.getEmployees()
+      ]);
+
+      const stalls = stallsRes.stalls;
+      const reservations = reservationsRes.reservations;
+      const reserved = stalls.filter((s: Stall) => !s.isAvailable);
+      const uniqueVendors = new Set(
+        reservations
+          .filter((r: Reservation) => r.status === "ACTIVE")
+          .map((r: Reservation) => r.userId)
+      );
+
+      setStats({
+        total: stalls.length,
+        reserved: reserved.length,
+        available: stalls.filter((s: Stall) => s.isAvailable).length,
+        totalVendors: uniqueVendors.size,
+        smallReserved: reserved.filter((s: Stall) => s.size === "SMALL").length,
+        mediumReserved: reserved.filter((s: Stall) => s.size === "MEDIUM").length,
+        largeReserved: reserved.filter((s: Stall) => s.size === "LARGE").length,
+      });
+
+      setRecentReservations(reservations.slice(0, 5));
+      setEmployeeCount(employeesRes.employees?.length || 0);
+    } catch (err: any) {
+      setError(err.message || "Failed to load dashboard data");
+      console.error("Dashboard error:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const occupancyRate = stats.total > 0 ? Math.round((stats.reserved / stats.total) * 100) : 0;
 
@@ -92,51 +93,50 @@ export default function EmployeeDashboard() {
     return styles[size] || styles.SMALL;
   };
 
-
-  const smallCount = Math.round(stats.total * 0.4); 
+  const smallCount = Math.round(stats.total * 0.4);
   const mediumCount = Math.round(stats.total * 0.35);
   const largeCount = stats.total - smallCount - mediumCount;
 
   if (loading) {
     return (
-      <EmpLayout>
+      <AdminLayout>
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="flex flex-col items-center gap-4">
             <Loader2 className="w-12 h-12 text-[#4dd9e8] animate-spin" />
             <p className="text-gray-600">Loading dashboard...</p>
           </div>
         </div>
-      </EmpLayout>
+      </AdminLayout>
     );
   }
 
   if (error) {
     return (
-      <EmpLayout>
+      <AdminLayout>
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="p-6 text-center border border-red-200 bg-red-50 rounded-xl">
             <p className="mb-4 text-red-700">{error}</p>
             <button
-              onClick={() => window.location.reload()}
+              onClick={loadData}
               className="px-4 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700"
             >
               Retry
             </button>
           </div>
         </div>
-      </EmpLayout>
+      </AdminLayout>
     );
   }
 
   return (
-    <EmpLayout>
+    <AdminLayout>
       <div className="mx-auto space-y-6 max-w-7xl">
-      
-        <div className="bg-gradient-to-br from-[#4dd9e8] to-[#2ab7c9] rounded-xl p-8 text-white shadow-[0_0_20px_rgba(77,217,232,0.4)]">
+        {/* Header */}
+         <div className="bg-gradient-to-br from-[#4dd9e8] to-[#2ab7c9] rounded-xl p-8 text-white shadow-[0_0_20px_rgba(77,217,232,0.4)]">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="mb-2 text-3xl font-bold text-white drop-shadow-md">Colombo International Book Fair 2024</h1>
-              <p className="text-lg text-white/95 drop-shadow">Organizer Dashboard - Sri Lanka Book Publishers' Association</p>
+              <p className="text-lg text-white/95 drop-shadow">Admin Dashboard - Sri Lanka Book Publishers' Association</p>
               <div className="flex items-center gap-4 mt-4">
                 <div className="flex items-center gap-2 px-4 py-2 border rounded-lg bg-white/20 backdrop-blur-sm border-white/30">
                   <Calendar className="w-4 h-4 text-white" />
@@ -151,16 +151,16 @@ export default function EmployeeDashboard() {
           </div>
         </div>
 
-   
+        {/* Stats */}
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
           <StatCard title="Total Stalls" value={stats.total} icon={LayoutGrid} color="blue" />
           <StatCard title="Reserved Stalls" value={stats.reserved} icon={CheckCircle} color="green" />
           <StatCard title="Available Stalls" value={stats.available} icon={Store} color="orange" />
-          <StatCard title="Active Vendors" value={stats.totalVendors} icon={Users} color="purple" />
+          <StatCard title="Employees" value={employeeCount} icon={UserCog} color="purple" />
         </div>
 
-   
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        {/* Occupancy Overview */}
+       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           <div className="p-6 transition-shadow bg-white border border-gray-200 shadow-sm lg:col-span-2 rounded-xl hover:shadow-md">
             <div className="flex items-center justify-between mb-6">
               <div>
@@ -208,8 +208,7 @@ export default function EmployeeDashboard() {
             </div>
           </div>
 
-        
-      
+          {/* Stall Statistics */}
           <div className="p-6 transition-shadow bg-white border border-gray-200 shadow-sm rounded-xl hover:shadow-md">
             <div className="flex items-center justify-between mb-4">
               <div>
@@ -217,7 +216,7 @@ export default function EmployeeDashboard() {
                 <p className="mt-1 text-sm text-gray-600">Total created stalls</p>
               </div>
                 <button
-                onClick={() => navigate("/employee/reservations")}
+                onClick={() => navigate("/admin/stalls")}
                 className="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-[#4dd9e8] to-[#2ab7c9] hover:shadow-lg rounded-lg transition-all"
               >
                 View All
@@ -255,7 +254,7 @@ export default function EmployeeDashboard() {
           </div>
         </div>
 
-  
+        {/* Recent Reservations */}
         <div className="transition-shadow bg-white border border-gray-200 shadow-sm rounded-xl hover:shadow-md">
           <div className="p-6 border-b border-gray-100">
             <div className="flex items-center justify-between">
@@ -264,14 +263,14 @@ export default function EmployeeDashboard() {
                 <p className="mt-1 text-sm text-gray-600">Latest bookings from vendors</p>
               </div>
               <button
-                onClick={() => navigate("/employee/reservations")}
-                className="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-[#4dd9e8] to-[#2ab7c9] hover:shadow-lg rounded-lg transition-all flex items-center gap-2"
+                onClick={() => navigate("/admin/reservations")}
+                className="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-[#4dd9e8] to-[#2ab7c9] hover:shadow-lg rounded-lg transition-all"
               >
-                <List className="w-4 h-4" />
                 View All
               </button>
             </div>
           </div>
+          
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="border-b border-gray-200 bg-gray-50">
@@ -316,6 +315,6 @@ export default function EmployeeDashboard() {
           </div>
         </div>
       </div>
-    </EmpLayout>
+    </AdminLayout>
   );
 }

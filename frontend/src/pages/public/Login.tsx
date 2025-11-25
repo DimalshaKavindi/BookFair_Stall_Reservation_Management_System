@@ -1,13 +1,15 @@
+// pages/LoginPage.tsx - Updated with Admin Login
 import { useState } from 'react';
 import { Eye, EyeOff, AlertCircle, CheckCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { authAPI } from '../../api/axios';
 import type { ApiError } from '../../types/Error';
 
+
 export default function LoginPage() {
     const navigate = useNavigate();
     const [showPassword, setShowPassword] = useState(false);
-    const [userType, setUserType] = useState<'vendor' | 'employee'>('vendor');
+    const [userType, setUserType] = useState<'vendor' | 'employee' | 'admin'>('vendor');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
@@ -55,8 +57,10 @@ export default function LoginPage() {
             setTimeout(() => {
                 if (userType === 'vendor') {
                     navigate('/vendor/dashboard');
-                } else {
+                } else if (userType === 'employee') {
                     navigate('/employee/dashboard');
+                } else {
+                    navigate('/admin/dashboard');
                 }
             }, 1000);
             
@@ -105,30 +109,43 @@ export default function LoginPage() {
                         </div>
                     )}
 
-                    <div className="flex gap-1 p-1 mb-4 bg-gray-100 rounded-lg md:gap-2 md:mb-6">
+                    {/* User Type Tabs */}
+                    <div className="flex gap-1 p-1 mb-4 bg-gray-100 rounded-lg md:mb-6">
                         <button
                             type="button"
                             onClick={() => setUserType('vendor')}
                             disabled={isLoading}
-                            className={`flex-1 py-2 px-3 md:px-4 rounded-md text-sm md:text-base font-medium transition-all ${
+                            className={`flex-1 py-2 px-2 md:px-3 rounded-md text-xs md:text-sm font-medium transition-all ${
                                 userType === 'vendor'
                                 ? 'bg-gradient-to-r from-[#4dd9e8] to-[#2ab7c9] text-white shadow-md'
                                 : 'text-gray-600 hover:text-gray-800'
                             }`}
                         >
-                            Vendor/Publisher
+                            Vendor
                         </button>
                         <button
                             type="button"
                             onClick={() => setUserType('employee')}
                             disabled={isLoading}
-                            className={`flex-1 py-2 px-3 md:px-4 rounded-md text-sm md:text-base font-medium transition-all ${
+                            className={`flex-1 py-2 px-2 md:px-3 rounded-md text-xs md:text-sm font-medium transition-all ${
                                 userType === 'employee'
                                 ? 'bg-gradient-to-r from-[#4dd9e8] to-[#2ab7c9] text-white shadow-md'
                                 : 'text-gray-600 hover:text-gray-800'
                             }`}
                         >
                             Employee
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setUserType('admin')}
+                            disabled={isLoading}
+                            className={`flex-1 py-2 px-2 md:px-3 rounded-md text-xs md:text-sm font-medium transition-all ${
+                                userType === 'admin'
+                                ? 'bg-gradient-to-r from-[#4dd9e8] to-[#2ab7c9] text-white shadow-md'
+                                : 'text-gray-600 hover:text-gray-800'
+                            }`}
+                        >
+                            Admin
                         </button>
                     </div>
 
@@ -200,16 +217,18 @@ export default function LoginPage() {
                         </button>
                     </form>
 
-                    <div className="mt-4 text-xs text-center text-gray-600 md:mt-6 md:text-sm">
-                        Don't have an account?{' '}
-                        <button 
-                            onClick={() => navigate('/register')}
-                            className="text-[#2ab7c9] hover:text-[#1e2875] font-semibold"
-                            disabled={isLoading}
-                        >
-                            Register here
-                        </button>
-                    </div>
+                    {userType === 'vendor' && (
+                        <div className="mt-4 text-xs text-center text-gray-600 md:mt-6 md:text-sm">
+                            Don't have an account?{' '}
+                            <button 
+                                onClick={() => navigate('/register')}
+                                className="text-[#2ab7c9] hover:text-[#1e2875] font-semibold"
+                                disabled={isLoading}
+                            >
+                                Register here
+                            </button>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

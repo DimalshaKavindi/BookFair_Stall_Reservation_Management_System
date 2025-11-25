@@ -3,7 +3,7 @@ import { authRequired } from "../middleware/auth";
 import { body, param } from "express-validator";
 import { createReservation, getUserReservations, getAllReservations, cancelReservation, updateGenres} from "../controllers/reservations.controller";
 import { validate } from "../middleware/validate";
-import { employeeOnly } from "../middleware/roles";
+import { employeeOrAdminOnly } from "../middleware/roles";
 
 const r = Router();
 
@@ -22,7 +22,7 @@ r.get("/user/:userId",
 );
 
 r.get("/",
-  authRequired, employeeOnly,
+  authRequired, employeeOrAdminOnly,
   getAllReservations
 );
 

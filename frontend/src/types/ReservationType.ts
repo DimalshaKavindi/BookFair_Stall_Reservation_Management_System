@@ -1,5 +1,5 @@
 import type { Stall } from "./StallType";
-import type { User } from "./UserType";
+import type { UserProfile } from "./UserType";
 
 export interface Reservation {
   reservationDate: string;
@@ -12,7 +12,7 @@ export interface Reservation {
   createdAt: string;
   updatedAt?: string;
   stall?: Stall;
-  user?: User;
+  user?: UserProfile;
 }
 
 export interface ReservationsResponse {
