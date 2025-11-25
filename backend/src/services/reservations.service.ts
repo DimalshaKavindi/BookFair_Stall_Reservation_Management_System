@@ -18,14 +18,32 @@ export async function create(userId: number, stallId: number) {
 
   
   const reservation = await prisma.$transaction(async (tx) => {
-    const updatedStall = await tx.stall.update({
-      where: { id: stallId },
-      data: { isAvailable: false }
+    const existingCanceled = await tx.reservation.findFirst({
+      where: { userId, stallId, status: "CANCELLED" }
     });
-    const created = await tx.reservation.create({
-      data: { userId, stallId: updatedStall.id }
-    });
-    return { created, updatedStall };
+
+    if (existingCanceled) {
+      await tx.stall.update({
+        where: { id: stallId },
+        data: { isAvailable: false }
+      });
+
+      const updatedReservation = await tx.reservation.update({
+        where: { id: existingCanceled.id },
+        data: { status: "ACTIVE" }
+      });
+
+      return { created: updatedReservation, updatedStall: stall };
+    } else {
+      const updatedStall = await tx.stall.update({
+        where: { id: stallId },
+        data: { isAvailable: false }
+      });
+      const created = await tx.reservation.create({
+        data: { userId, stallId: updatedStall.id }
+      });
+      return { created, updatedStall };
+    }
   });
 
 
