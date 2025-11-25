@@ -4,6 +4,10 @@ import StallMap from '../../components/StallMap';
 import { stallsAPI, reservationsAPI, userAPI } from '../../api/axios';
 import type { Stall } from '../../types/StallType';
 import type { UserProfile } from '../../types/UserType';
+import type { Reservation } from '../../types/ReservationType';
+import { showToastError } from '../../utils/toast/errToast';
+import { showToastSuccess } from '../../utils/toast/successToast';
+import { showToastinfo } from '../../utils/toast/infoToast';
 
 export default function ReserveStalls() {
   const [stalls, setStalls] = useState<Stall[]>([]);
@@ -13,6 +17,8 @@ export default function ReserveStalls() {
   const [reserving, setReserving] = useState(false);
   const [userReservations, setUserReservations] = useState<number>(0);
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
+  const [userReservationsList, setUserReservationsList] = useState<Reservation[]>([]);
+  
   const availableCount = stalls.filter(stall => stall.isAvailable).length;
   const reservedCount = stalls.length - availableCount;
 
@@ -31,6 +37,7 @@ export default function ReserveStalls() {
       ]);
     } catch (error) {
       console.error('Failed to load user data:', error);
+      showToastError('Failed to load user data. Please try again.');
       setLoading(false);
     }
   };
@@ -41,16 +48,24 @@ export default function ReserveStalls() {
       setStalls(response.stalls || []);
     } catch (error) {
       console.error('Failed to load stalls:', error);
-      alert('Failed to load stalls. Please try again.');
+      showToastError('Failed to load stalls. Please try again.');
     }
   };
 
   const loadUserReservations = async (userId: number) => {
     try {
       const response = await reservationsAPI.getForUser(userId);
-      setUserReservations(response.reservations?.length || 0);
+      const reservations = response.reservations || [];
+      setUserReservationsList(reservations);
+      
+      const activeReservationsCount = reservations.filter(
+        (reservation: Reservation) => reservation.status === 'ACTIVE'
+      ).length;
+      
+      setUserReservations(activeReservationsCount);
     } catch (error) {
       console.error('Failed to load user reservations:', error);
+      showToastError('Failed to load your reservations.');
     } finally {
       setLoading(false);
     }
@@ -63,6 +78,12 @@ export default function ReserveStalls() {
 
   const handleStallClick = (stall: Stall) => {
     if (!stall.isAvailable) return;
+    
+    if (userReservations >= 3) {
+      showToastError('You have reached the maximum of 3 active stalls.');
+      return;
+    }
+    
     setSelectedStall(stall);
     setShowConfirmation(true);
   };
@@ -70,12 +91,19 @@ export default function ReserveStalls() {
   const handleConfirmReservation = async () => {
     if (!selectedStall) return;
 
+    if (userReservations >= 3) {
+      showToastError('You have reached the maximum of 3 active stalls.');
+      setShowConfirmation(false);
+      setSelectedStall(null);
+      return;
+    }
+
     setReserving(true);
     try {
       const response = await reservationsAPI.create(selectedStall.id);
       
       if (response.success) {
-        alert(`Stall ${selectedStall.name} reserved successfully! Check your email for the QR code.`);
+        showToastSuccess(`Stall ${selectedStall.name} reserved successfully! Check your email for the QR code.`);
         setShowConfirmation(false);
         setSelectedStall(null);
         await loadStalls();
@@ -83,18 +111,18 @@ export default function ReserveStalls() {
           await loadUserReservations(currentUser.id);
         }
       } else {
-        alert('Reservation failed. Please try again.');
+        showToastError('Reservation failed. Please try again.');
       }
     } catch (error: any) {
       console.error('Reservation failed:', error);
       const errorMessage = error.message || 'Reservation failed. Please try again.';
       
       if (error.status === 400) {
-        alert(`Reservation failed: ${errorMessage}`);
+        showToastError(`Reservation failed: ${errorMessage}`);
       } else if (error.status === 404) {
-        alert('User not found. Please log in again.');
+        showToastError('User not found. Please log in again.');
       } else {
-        alert(`Reservation completed but there was an issue with email/QR. Your stall is reserved.`);
+        showToastinfo(`Reservation failed: ${errorMessage}`);
         await loadStalls();
         if (currentUser) {
           await loadUserReservations(currentUser.id);
@@ -154,13 +182,13 @@ export default function ReserveStalls() {
           <div className="h-12 w-px bg-gray-300"></div>
           <div className="flex flex-col items-center justify-center px-8 py-4">
             <span className="text-2xl font-bold text-blue-600">{userReservations}</span>
-            <span className="text-sm text-gray-600 font-medium">Your Reservations</span>
+            <span className="text-sm text-gray-600 font-medium">Your Active Reservations</span>
           </div>
         </div>
 
         <div className="mt-4">
           <div className="flex items-center justify-between text-xs text-gray-600 mb-1">
-            <span>Your reservation progress</span>
+            <span>Your active reservation progress</span>
             <span>{userReservations}/3 stalls</span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2">
@@ -171,6 +199,7 @@ export default function ReserveStalls() {
           </div>
         </div>
       </div>
+      
       <StallMap 
         stalls={stalls}
         selectedStalls={selectedStall ? [selectedStall] : []}
@@ -236,20 +265,6 @@ export default function ReserveStalls() {
                 </div>
               </div>
             </div>
-
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-blue-800 font-medium">Your current reservations:</span>
-                <span className="text-sm font-bold text-blue-800">{userReservations}/3</span>
-              </div>
-              <div className="w-full bg-blue-200 rounded-full h-2 mt-2">
-                <div 
-                  className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                  style={{ width: `${(userReservations / 3) * 100}%` }}
-                ></div>
-              </div>
-            </div>
-
             <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-6">
               <p className="text-xs md:text-sm text-amber-800">
                 <strong>Note:</strong> A confirmation email with QR code will be sent to your registered email address. Each stall reservation generates a unique QR code.
@@ -286,7 +301,7 @@ export default function ReserveStalls() {
             {userReservations >= 3 && (
               <div className="mt-3 p-2 bg-red-50 border border-red-200 rounded-lg">
                 <p className="text-xs text-red-700 text-center">
-                  You have reached the maximum limit of 3 reservations.
+                  You have reached the maximum limit of 3 active reservations.
                 </p>
               </div>
             )}

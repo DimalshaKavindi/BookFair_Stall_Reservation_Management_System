@@ -16,6 +16,8 @@ import AdminStalls from './pages/admin/Stalls';
 import CreateStall from './pages/admin/CreateStall';
 import AdminReservations from './pages/admin/Reservations';
 import AdminProfile from './pages/admin/Profile';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
   return (
@@ -50,6 +52,7 @@ function App() {
         
        
       </Routes>
+      <ToastContainer />
     </div>
   );
 }

@@ -7,7 +7,7 @@ export interface Reservation {
   id: number;
   userId: number;
   stallId: number;
-  status: "ACTIVE" | "CANCELLED" | "COMPLETED";
+  status: "ACTIVE" | "CANCELLED" ;
   qrCodeUrl?: string;
   createdAt: string;
   updatedAt?: string;

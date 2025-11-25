@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
-import { MapPin, Calendar, Download, Trash2, QrCode, Building, Clock,CheckCircle,XCircle,AlertTriangle,Search,X} from 'lucide-react';
+import { MapPin, Calendar, Download, Trash2, QrCode, Building, Clock, CheckCircle, XCircle, AlertTriangle, Search, X } from 'lucide-react';
 import { reservationsAPI, userAPI } from '../../api/axios';
 import type { Reservation } from '../../types/ReservationType';
 import type { UserProfile } from '../../types/UserType';
+import { showToastError } from '../../utils/toast/errToast';
+import { showToastSuccess } from '../../utils/toast/successToast';
 
 export default function MyReservations() {
   const [reservations, setReservations] = useState<Reservation[]>([]);
@@ -15,6 +17,7 @@ export default function MyReservations() {
   const [selectedReservation, setSelectedReservation] = useState<Reservation | null>(null);
   const [showQrModal, setShowQrModal] = useState(false);
   const [selectedQrCode, setSelectedQrCode] = useState<string>('');
+  const [selectedStallName, setSelectedStallName] = useState<string>('');
 
   useEffect(() => {
     loadReservations();
@@ -29,6 +32,7 @@ export default function MyReservations() {
       setReservations(response.reservations || []);
     } catch (error) {
       console.error('Failed to load reservations:', error);
+      showToastError('Failed to load your reservations. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -54,25 +58,53 @@ export default function MyReservations() {
         )
       );
 
+      showToastSuccess(`Reservation for Stall ${selectedReservation.stall?.name} has been cancelled successfully.`);
       setShowCancelModal(false);
       setSelectedReservation(null);
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
+      const errorMessage = error.message || 'Failed to cancel reservation. Please try again.';
+      showToastError(errorMessage);
     } finally {
       setCancellingId(null);
     }
   };
 
-  const handleViewQr = (qrCodeUrl: string) => {
+  const handleViewQr = (qrCodeUrl: string, stallName: string) => {
     setSelectedQrCode(qrCodeUrl);
+    setSelectedStallName(stallName);
     setShowQrModal(true);
   };
 
   const downloadQRCode = (qrCodeUrl: string, stallName: string) => {
-    const link = document.createElement('a');
-    link.href = qrCodeUrl;
-    link.download = `qr-code-${stallName}.png`;
-    link.click();
+    fetch(qrCodeUrl)
+      .then(response => response.blob())
+      .then(blob => {
+        const blobUrl = window.URL.createObjectURL(blob);
+        
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        link.download = `qr-code-stall-${stallName}.png`;
+        
+        document.body.appendChild(link);
+        link.click();
+        
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(blobUrl);
+        
+        showToastSuccess('QR code downloaded successfully!');
+      })
+      .catch(error => {
+        console.error('Failed to download QR code:', error);
+        showToastError('Failed to download QR code. Please try again.');
+      });
+  };
+
+  const downloadFromModal = () => {
+    if (selectedQrCode && selectedStallName) {
+      downloadQRCode(selectedQrCode, selectedStallName);
+      setShowQrModal(false);
+    }
   };
 
   const getStatusBadge = (status: string) => {
@@ -83,8 +115,6 @@ export default function MyReservations() {
         return `${baseClasses} bg-green-100 text-green-800 flex items-center gap-1`;
       case 'CANCELLED':
         return `${baseClasses} bg-red-100 text-red-800 flex items-center gap-1`;
-      case 'COMPLETED':
-        return `${baseClasses} bg-blue-100 text-blue-800 flex items-center gap-1`;
       default:
         return `${baseClasses} bg-gray-100 text-gray-800`;
     }
@@ -296,12 +326,15 @@ export default function MyReservations() {
                     {/* --- QR CODE --- */}
                     <div className="flex items-center justify-center lg:justify-start">
                       {reservation.qrCodeUrl && reservation.status === "ACTIVE" ? (
-                        <img
-                          src={reservation.qrCodeUrl}
-                          alt="QR Code"
-                          className="w-32 h-32 border border-gray-300 rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
-                          onClick={() => handleViewQr(reservation.qrCodeUrl!)}
-                        />
+                        <div className="text-center">
+                          <img
+                            src={reservation.qrCodeUrl}
+                            alt="QR Code"
+                            className="w-32 h-32 border border-gray-300 rounded-lg mx-auto mb-3 cursor-pointer hover:opacity-80 transition-opacity"
+                            onClick={() => handleViewQr(reservation.qrCodeUrl!, reservation.stall?.name || 'Unknown')}
+                          />
+                          <p className="text-xs text-gray-500 mb-2">Scan at exhibition entrance</p>
+                        </div>
                       ) : (
                         <div className="text-gray-400 text-sm italic">
                           QR unavailable
@@ -317,7 +350,7 @@ export default function MyReservations() {
                             onClick={() =>
                               downloadQRCode(
                                 reservation.qrCodeUrl!,
-                                `stall-${reservation.stall?.name}`
+                                reservation.stall?.name || 'unknown'
                               )
                             }
                             className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition-colors"
@@ -327,7 +360,7 @@ export default function MyReservations() {
                           </button>
 
                           <button
-                            onClick={() => handleViewQr(reservation.qrCodeUrl!)}
+                            onClick={() => handleViewQr(reservation.qrCodeUrl!, reservation.stall?.name || 'Unknown')}
                             className="flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm hover:bg-gray-50 transition-colors"
                           >
                             <QrCode className="w-4 h-4" />
@@ -460,10 +493,7 @@ export default function MyReservations() {
                   Close
                 </button>
                 <button
-                  onClick={() => {
-                    downloadQRCode(selectedQrCode, 'stall-qr-code');
-                    setShowQrModal(false);
-                  }}
+                  onClick={downloadFromModal}
                   className="flex-1 py-2.5 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
                 >
                   <Download className="w-4 h-4" />

@@ -3,6 +3,8 @@ import { Eye, EyeOff, Building2, User, Mail, Phone, MapPin, AlertCircle, CheckCi
 import { useNavigate } from 'react-router-dom';
 import { authAPI} from '../../api/axios';
 import type { ApiError } from '../../types/Error';
+import { showToastError } from '../../utils/toast/errToast';
+import { showToastSuccess } from '../../utils/toast/successToast';
 
 export default function RegisterPage() {
     const navigate = useNavigate();
@@ -102,14 +104,18 @@ export default function RegisterPage() {
             await authAPI.registerVendor(registrationData);
             setSuccess(true);
             setError(null);
+            showToastSuccess('Registration successful! Welcome to Colombo International Book Fair!');
+            
             setTimeout(() => {
                 navigate('/');
             }, 2000);
             
         } catch (err: any) {
             const apiError = err as ApiError;
-            setError(apiError.message || 'Registration failed. Please try again.');
+            const errorMessage = apiError.message || 'Registration failed. Please try again.';
+            setError(errorMessage);
             setSuccess(false);
+            showToastError(errorMessage);
         } finally {
             setIsLoading(false);
         }
