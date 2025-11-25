@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { sendReservationEmail } from "../utils/email";
+import { sendReservationEmail,sendCancellationEmail } from "../utils/email";
 import { generateAndUploadQr } from "../utils/qr";
 
 const prisma = new PrismaClient();
@@ -92,10 +92,22 @@ export async function cancel(id: number, userId: number) {
   if (!existing) throw { status: 404, message: "Reservation not found" };
   if (existing.userId !== userId) throw { status: 403, message: "Forbidden" };
   if (existing.status === "CANCELLED") return true;
-await prisma.$transaction(async (tx) => {
+  
+  await prisma.$transaction(async (tx) => {
     await tx.reservation.update({ where: { id }, data: { status: "CANCELLED" } });
     await tx.stall.update({ where: { id: existing.stallId }, data: { isAvailable: true } });
   });
+
+  // Send cancellation email
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (user) {
+    await sendCancellationEmail({
+      to: user.email,
+      businessName: user.businessName,
+      stallName: (await prisma.stall.findUnique({ where: { id: existing.stallId } }))?.name || ""
+    });
+  }
+  
   return true;
 }
 

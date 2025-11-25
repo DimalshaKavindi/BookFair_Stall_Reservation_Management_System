@@ -2,12 +2,10 @@ import { Request, Response } from "express";
 import * as reservationsService from "../services/reservations.service";
 
 export async function createReservation(req: Request, res: Response) {
-
     const userId = (req as any).user.id as number;
     const { stallId } = req.body;
     const reservation = await reservationsService.create(userId, stallId);
     res.status(201).json({ success: true, reservation });
- 
 }
 
 export async function getUserReservations(req: Request, res: Response) {
