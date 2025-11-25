@@ -161,28 +161,28 @@ export default function ReserveStalls() {
         </div>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+      <div className="bg-white rounded-xl shadow-sm p-3 md:p-6 border border-gray-100">
         <div className="flex items-center justify-center gap-0">
-          <div className="flex flex-col items-center justify-center px-8 py-4">
-            <span className="text-2xl font-bold text-gray-900">{stalls.length}</span>
-            <span className="text-sm text-gray-600 font-medium">Total Stalls</span>
+          <div className="flex flex-col items-center justify-center px-2 py-1 md:px-8 md:py-4">
+            <span className="text-lg md:text-2xl font-bold text-gray-900">{stalls.length}</span>
+            <span className="text-xs md:text-sm text-gray-600 font-medium">Total Stalls</span>
           </div>
           <div className="h-12 w-px bg-gray-300"></div>
-          <div className="flex flex-col items-center justify-center px-8 py-4">
-            <span className="text-2xl font-bold text-green-600">{availableCount}</span>
-            <span className="text-sm text-gray-600 font-medium">Available</span>
+          <div className="flex flex-col items-center justify-center px-2 py-1 md:px-8 md:py-4">
+            <span className="text-lg md:text-2xl font-bold text-green-600">{availableCount}</span>
+            <span className="text-xs md:text-sm text-gray-600 font-medium">Available</span>
           </div>
           <div className="h-12 w-px bg-gray-300"></div>
 
-          <div className="flex flex-col items-center justify-center px-8 py-4">
-            <span className="text-2xl font-bold text-red-600">{reservedCount}</span>
-            <span className="text-sm text-gray-600 font-medium">Reserved</span>
+          <div className="flex flex-col items-center justify-center px-2 py-1 md:px-8 md:py-4">
+            <span className="text-lg md:text-2xl font-bold text-red-600">{reservedCount}</span>
+            <span className="text-xs md:text-sm text-gray-600 font-medium">Reserved</span>
           </div>
 
           <div className="h-12 w-px bg-gray-300"></div>
-          <div className="flex flex-col items-center justify-center px-8 py-4">
-            <span className="text-2xl font-bold text-blue-600">{userReservations}</span>
-            <span className="text-sm text-gray-600 font-medium">Your Active Reservations</span>
+          <div className="flex flex-col items-center justify-center px-2 py-1 md:px-8 md:py-4">
+            <span className="text-lg md:text-2xl font-bold text-blue-600">{userReservations}</span>
+            <span className="text-xs md:text-sm text-gray-600 font-medium">Your Active Reservations</span>
           </div>
         </div>
 

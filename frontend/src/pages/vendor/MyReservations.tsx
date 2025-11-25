@@ -5,6 +5,7 @@ import type { Reservation } from '../../types/ReservationType';
 import type { UserProfile } from '../../types/UserType';
 import { showToastError } from '../../utils/toast/errToast';
 import { showToastSuccess } from '../../utils/toast/successToast';
+import { showToastinfo } from '../../utils/toast/infoToast';
 
 export default function MyReservations() {
   const [reservations, setReservations] = useState<Reservation[]>([]);
@@ -59,6 +60,8 @@ export default function MyReservations() {
       );
 
       showToastSuccess(`Reservation for Stall ${selectedReservation.stall?.name} has been cancelled successfully.`);
+      showToastinfo('A cancellation confirmation has been sent to your email.');
+      
       setShowCancelModal(false);
       setSelectedReservation(null);
     } catch (error: any) {
@@ -178,7 +181,6 @@ export default function MyReservations() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
         <div className="flex items-start justify-between flex-wrap gap-4">
           <div>
@@ -191,7 +193,6 @@ export default function MyReservations() {
             </p>
           </div>
           
-          {/* Stats */}
           <div className="flex items-center gap-4">
             <div className="text-center">
               <div className="text-2xl font-bold text-gray-900">{reservations.length}</div>
@@ -211,11 +212,9 @@ export default function MyReservations() {
         </div>
       </div>
 
-      {/* Filters and Search */}
       <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 ">
         <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between mb-5">
           <div className="flex items-center gap-4 flex-wrap">
-            {/* Status Filter */}
             <div className="flex items-center gap-2 bg-gray-100 rounded-lg p-1">
               {(['ALL', 'ACTIVE', 'CANCELLED'] as const).map((filter) => (
                 <button
@@ -233,7 +232,6 @@ export default function MyReservations() {
             </div>
           </div>
 
-          {/* Search */}
           <div className="relative w-full sm:w-64">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             <input
@@ -246,7 +244,6 @@ export default function MyReservations() {
           </div>
         </div>
         
-        {/* Reservations List */}
         <div className="grid gap-6 bg-white py-10 px-5 md:px-10 border rounded-lg">
           {filteredReservations.length === 0 ? (
             <div className="text-center py-8">
@@ -266,13 +263,10 @@ export default function MyReservations() {
                 className="bg-white rounded-xl shadow border border-gray-200 overflow-hidden hover:shadow-lg transition-all"
               >
                 <div className="p-5 sm:p-6">
-                  {/* GRID WRAPPER */}
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-
-                    {/* --- STALL INFO --- */}
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
-                        <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                        <h3 className="text-base md:text-xl flex-col md:flex-row font-bold text-gray-900 flex items-center gap-2">
                           Stall {reservation.stall?.name}
                           <span
                             className={`px-2 py-1 rounded-full text-xs font-semibold border ${getStallColor(
@@ -283,7 +277,6 @@ export default function MyReservations() {
                           </span>
                         </h3>
 
-                        {/* STATUS BADGE */}
                         <div className={getStatusBadge(reservation.status)}>
                           {getStatusIcon(reservation.status)}
                           {reservation.status}
@@ -292,7 +285,7 @@ export default function MyReservations() {
 
                       <p className="text-gray-600">{reservation.stall?.dimensions}</p>
 
-                      <div className="space-y-1 text-sm text-gray-700">
+                      <div className="space-y-1 text-xs md:text-sm text-gray-700">
                         <div className="flex items-center gap-2">
                           <MapPin className="w-4 h-4 text-gray-500" />
                           {reservation.stall?.location}
@@ -303,7 +296,6 @@ export default function MyReservations() {
                         </div>
                       </div>
 
-                      {/* Genre Tags */}
                       {reservation.literaryGenres && reservation.literaryGenres.length > 0 && (
                         <div>
                           <p className="text-xs font-semibold text-gray-600 mb-1">
@@ -323,14 +315,13 @@ export default function MyReservations() {
                       )}
                     </div>
 
-                    {/* --- QR CODE --- */}
                     <div className="flex items-center justify-center lg:justify-start">
                       {reservation.qrCodeUrl && reservation.status === "ACTIVE" ? (
                         <div className="text-center">
                           <img
                             src={reservation.qrCodeUrl}
                             alt="QR Code"
-                            className="w-32 h-32 border border-gray-300 rounded-lg mx-auto mb-3 cursor-pointer hover:opacity-80 transition-opacity"
+                            className="w-24 h-24 md:w-32 md:h-32 border border-gray-300 rounded-lg mx-auto mb-3 cursor-pointer hover:opacity-80 transition-opacity"
                             onClick={() => handleViewQr(reservation.qrCodeUrl!, reservation.stall?.name || 'Unknown')}
                           />
                           <p className="text-xs text-gray-500 mb-2">Scan at exhibition entrance</p>
@@ -342,7 +333,6 @@ export default function MyReservations() {
                       )}
                     </div>
 
-                    {/* --- ACTIONS --- */}
                     <div className="flex flex-col justify-center gap-3">
                       {reservation.qrCodeUrl && reservation.status === "ACTIVE" && (
                         <>
@@ -353,7 +343,7 @@ export default function MyReservations() {
                                 reservation.stall?.name || 'unknown'
                               )
                             }
-                            className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition-colors"
+                            className="md:text-base flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-xs hover:bg-blue-700 transition-colors"
                           >
                             <Download className="w-4 h-4" />
                             Download QR
@@ -361,7 +351,7 @@ export default function MyReservations() {
 
                           <button
                             onClick={() => handleViewQr(reservation.qrCodeUrl!, reservation.stall?.name || 'Unknown')}
-                            className="flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm hover:bg-gray-50 transition-colors"
+                            className="md:text-base flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-xs hover:bg-gray-50 transition-colors"
                           >
                             <QrCode className="w-4 h-4" />
                             View QR
@@ -373,7 +363,7 @@ export default function MyReservations() {
                         <button
                           onClick={() => handleCancelClick(reservation)}
                           disabled={cancellingId === reservation.id}
-                          className="flex items-center justify-center gap-2 px-4 py-2 border border-red-300 text-red-700 rounded-lg text-sm hover:bg-red-50 transition-colors disabled:opacity-50"
+                          className="md:text-base flex items-center justify-center gap-2 px-4 py-2 border border-red-300 text-red-700 rounded-lg text-xs hover:bg-red-50 transition-colors disabled:opacity-50"
                         >
                           {cancellingId === reservation.id ? (
                             <>
@@ -397,7 +387,6 @@ export default function MyReservations() {
         </div>
       </div>
 
-      {/* Cancel Confirmation Modal */}
       {showCancelModal && selectedReservation && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 relative">
@@ -459,7 +448,6 @@ export default function MyReservations() {
         </div>
       )}
 
-      {/* QR Code Modal */}
       {showQrModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6 relative">
@@ -505,7 +493,6 @@ export default function MyReservations() {
         </div>
       )}
 
-      {/* Important Notes */}
       <div className="bg-blue-50 border border-blue-200 rounded-xl p-6">
         <div className="flex items-start gap-3">
           <AlertTriangle className="w-5 h-5 text-blue-600 mt-0.5" />
