@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import {
   Mail,
@@ -9,19 +8,17 @@ import {
   Save,
   X,
   Loader2,
-  AlertCircle,
-  CheckCircle,
   Shield,
 } from "lucide-react";
 import { usersAPI } from "../../api/axios";
 import AdminLayout from "../../layout/AdminLayout";
 import type { UserProfile as UserType } from "../../types/UserType";
+import { showToastError } from '../../utils/toast/errToast';
+import { showToastSuccess } from '../../utils/toast/successToast';
 
 export default function AdminProfile() {
   const [profile, setProfile] = useState<UserType | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -39,7 +36,6 @@ export default function AdminProfile() {
   const loadProfile = async () => {
     try {
       setLoading(true);
-      setError(null);
       const response = await usersAPI.getProfile();
       setProfile(response.user);
       setFormData({
@@ -49,7 +45,7 @@ export default function AdminProfile() {
         address: response.user.address || "",
       });
     } catch (err: any) {
-      setError(err.message || "Failed to load profile");
+      showToastError(err.message || "Failed to load profile");
     } finally {
       setLoading(false);
     }
@@ -63,14 +59,12 @@ export default function AdminProfile() {
   const handleSave = async () => {
     try {
       setIsSaving(true);
-      setError(null);
       const response = await usersAPI.updateProfile(formData);
       setProfile(response.user);
       setIsEditing(false);
-      setSuccess("Profile updated successfully!");
-      setTimeout(() => setSuccess(null), 3000);
+      showToastSuccess("Profile updated successfully!");
     } catch (err: any) {
-      setError(err.message || "Failed to update profile");
+      showToastError(err.message || "Failed to update profile");
     } finally {
       setIsSaving(false);
     }
@@ -78,8 +72,6 @@ export default function AdminProfile() {
 
   const handleCancel = () => {
     setIsEditing(false);
-    setError(null);
-    setSuccess(null);
     if (profile) {
       setFormData({
         businessName: profile.businessName || "",
@@ -106,24 +98,8 @@ export default function AdminProfile() {
   return (
     <AdminLayout>
       <div className="mx-auto space-y-6 max-w-7xl">
-      
-        {!isEditing && success && (
-          <div className="flex items-center gap-3 p-4 border border-green-200 rounded-lg bg-green-50">
-            <CheckCircle className="flex-shrink-0 w-5 h-5 text-green-600" />
-            <p className="text-sm font-medium text-green-800">{success}</p>
-          </div>
-        )}
-
-        {!isEditing && error && (
-          <div className="flex items-center gap-3 p-4 border border-red-200 rounded-lg bg-red-50">
-            <AlertCircle className="flex-shrink-0 w-5 h-5 text-red-600" />
-            <p className="text-sm font-medium text-red-800">{error}</p>
-          </div>
-        )}
-
         {profile && (
           <div className="overflow-hidden bg-white border border-gray-200 shadow-sm rounded-xl">
-       
             <div className="bg-gradient-to-br from-[#4dd9e8] to-[#2ab7c9] rounded-xl p-8 text-white shadow-[0_0_20px_rgba(77,217,232,0.4)]">
               <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-4">
@@ -153,9 +129,8 @@ export default function AdminProfile() {
               </div>
             </div>
 
-       
             <div className="p-6 space-y-8 sm:p-8">
-           
+          
               <div>
                 <h3 className="flex items-center gap-2 mb-6 text-lg font-semibold text-gray-900">
                   <Mail className="w-5 h-5 text-[#4dd9e8]" />
@@ -247,21 +222,6 @@ export default function AdminProfile() {
                       />
                     </div>
 
-           
-                    {success && (
-                      <div className="flex items-center gap-3 p-4 border border-green-200 rounded-lg bg-green-50">
-                        <CheckCircle className="flex-shrink-0 w-5 h-5 text-green-600" />
-                        <p className="text-sm font-medium text-green-800">{success}</p>
-                      </div>
-                    )}
-
-                    {error && (
-                      <div className="flex items-center gap-3 p-4 border border-red-200 rounded-lg bg-red-50">
-                        <AlertCircle className="flex-shrink-0 w-5 h-5 text-red-600" />
-                        <p className="text-sm font-medium text-red-800">{error}</p>
-                      </div>
-                    )}
-
                     <div className="flex gap-3 pt-4">
                       <button
                         onClick={handleSave}
@@ -327,7 +287,7 @@ export default function AdminProfile() {
 
               <hr className="border-gray-200" />
 
-       
+           
               <div className="p-4 border-l-4 rounded-lg bg-blue-50 border-[#4dd9e8]">
                 <div className="flex items-start gap-3">
                   <Shield className="w-5 h-5 text-[#4dd9e8] flex-shrink-0 mt-0.5" />

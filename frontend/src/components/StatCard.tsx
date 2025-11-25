@@ -1,5 +1,4 @@
-// frontend/src/components/StatCard.tsx
-// frontend/src/components/StatCard.tsx
+
 import type { LucideIcon } from "lucide-react";
 
 interface StatCardProps {
@@ -59,7 +58,7 @@ export default function StatCard({
     <div className={`bg-white rounded-xl p-6 border shadow-sm hover:shadow-md transition-shadow`}>
       <div className="flex items-start justify-between mb-4">
         <div className="flex-1">
-          <p className="text-sm font-medium text-gray-600 mb-1">{title}</p>
+          <p className="mb-1 text-sm font-medium text-gray-600">{title}</p>
           <p className="text-3xl font-bold text-gray-900">{value}</p>
         </div>
         {Icon && (
@@ -69,14 +68,7 @@ export default function StatCard({
         )}
       </div>
       
-      {/* {trend && (
-        <div className="flex items-center gap-1">
-          <span className={`text-xs font-medium ${trend.isPositive ? 'text-green-600' : 'text-red-600'}`}>
-            {trend.isPositive ? '↑' : '↓'} {Math.abs(trend.value)}%
-          </span>
-          <span className="text-xs text-gray-500">vs last month</span>
-        </div>
-      )} */}
+    
     </div>
   );
 }

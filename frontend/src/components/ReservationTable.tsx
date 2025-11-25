@@ -151,7 +151,7 @@ export default function ReservationTable({ reservations }: ReservationTableProps
               key={reservation.id}
               className="bg-white rounded-xl border border-[#4dd9e8]/20 shadow-sm p-4 space-y-4"
             >
-              {/* Header */}
+             
               <div className="flex items-center justify-between">
                 <span className="inline-flex items-center justify-center px-3 py-1.5 bg-gradient-to-br from-[#4dd9e8] to-[#2ab7c9] text-white font-bold rounded-lg text-sm shadow-sm">
                   {reservation.stall?.name || `#${reservation.stallId}`}
@@ -165,7 +165,7 @@ export default function ReservationTable({ reservations }: ReservationTableProps
                 </span>
               </div>
 
-              {/* Business Info */}
+          
               <div className="space-y-2">
                 <div>
                   <p className="text-xs text-gray-600">Business Name</p>
@@ -187,7 +187,7 @@ export default function ReservationTable({ reservations }: ReservationTableProps
                 </div>
               </div>
 
-              {/* Additional Info */}
+           
               <div className="flex items-center gap-4 pt-3 border-t border-gray-200">
                 <div>
                   <p className="text-xs text-gray-600">Size</p>
@@ -209,7 +209,7 @@ export default function ReservationTable({ reservations }: ReservationTableProps
                 </div>
               </div>
 
-              {/* Literary Genres */}
+           
               {reservation.literaryGenres && reservation.literaryGenres.length > 0 && (
                 <div>
                   <p className="mb-2 text-xs text-gray-600">Literary Genres</p>

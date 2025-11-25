@@ -1,4 +1,4 @@
-// components/EmployeeTable.tsx
+
 import { Mail, Phone, MapPin, User, Search } from 'lucide-react';
 
 interface Employee {
@@ -48,7 +48,7 @@ export default function EmployeeTable({ employees }: EmployeeTableProps) {
                   <tr key={employee.id} className="transition-colors hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className="inline-flex items-center justify-center px-3 py-1.5 bg-gradient-to-br from-[#4dd9e8] to-[#2ab7c9] text-white font-bold rounded-lg text-sm shadow-sm">
-                        #{employee.id}
+                        {employee.id}
                       </span>
                     </td>
                     <td className="px-6 py-4">

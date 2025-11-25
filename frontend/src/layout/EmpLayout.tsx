@@ -2,8 +2,7 @@ import {
   LogOut,
   Menu,
   X,
-  LayoutDashboard,
-  Calendar,
+  
   User,
   ChevronDown
 } from "lucide-react";
@@ -25,7 +24,6 @@ export default function EmpLayout({ children }: EmpLayoutProps) {
   const [loading, setLoading] = useState(true);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Fetch user profile on mount
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
@@ -41,7 +39,6 @@ export default function EmpLayout({ children }: EmpLayoutProps) {
     fetchUserProfile();
   }, []);
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -61,7 +58,6 @@ export default function EmpLayout({ children }: EmpLayoutProps) {
 
   const isActive = (path: string) => location.pathname === path;
 
-  // Get initials for avatar
   const getInitials = (name: string) => {
     return name
       .split(' ')
@@ -77,17 +73,22 @@ export default function EmpLayout({ children }: EmpLayoutProps) {
     {
       path: "/employee/dashboard",
       label: "Dashboard",
-      icon: LayoutDashboard
+      
+    },
+      {
+      path: "/employee/stall",
+      label: "Stalls",
+      
     },
     {
       path: "/employee/reservations",
       label: "Reservations",
-      icon: Calendar
+      
     }
   ];
 
   return (
-    <div className="min-h-screen bg-blue-50">
+    <div className="min-h-screen bg-gray-50">
       <header className="bg-gradient-to-r from-[#1e2875] to-[#3245a5] border-b border-[#4dd9e8]/20 sticky top-0 z-50 shadow-lg">
         <div className="w-full px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-24">
@@ -250,7 +251,7 @@ export default function EmpLayout({ children }: EmpLayoutProps) {
             <div className="py-4 border-t md:hidden border-white/10">
               <nav className="flex flex-col gap-2">
                 {navItems.map((item) => {
-                  const Icon = item.icon;
+                 
                   const active = isActive(item.path);
                   return (
                     <button
@@ -265,7 +266,7 @@ export default function EmpLayout({ children }: EmpLayoutProps) {
                           : "text-white/80 hover:text-white hover:bg-white/10"
                       }`}
                     >
-                      <Icon className="w-4 h-4" />
+                     
                       {item.label}
                     </button>
                   );

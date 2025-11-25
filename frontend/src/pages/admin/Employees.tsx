@@ -1,4 +1,4 @@
-// pages/admin/Employees.tsx
+
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserCog, Plus, Loader2, AlertCircle } from 'lucide-react';
@@ -76,7 +76,7 @@ export default function AdminEmployees() {
   return (
     <AdminLayout>
       <div className="mx-auto max-w-7xl">
-        {/* Header */}
+      
         <div className="p-6 mb-6 bg-white border border-gray-100 shadow-sm rounded-xl">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div className="flex items-center gap-3">
@@ -99,7 +99,7 @@ export default function AdminEmployees() {
         </div>
 
 
-        {/* Employee Table */}
+  
         {employees.length === 0 ? (
           <div className="p-12 text-center bg-white border border-gray-100 shadow-sm rounded-xl">
             <UserCog className="w-16 h-16 mx-auto mb-4 text-gray-300" />

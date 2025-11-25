@@ -19,6 +19,7 @@ import AdminProfile from './pages/admin/Profile';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import ProtectedRoute from './components/ProtectedRoute';
+import EmployeeStall from './pages/employee/Stall';
 
 function App() {
   return (
@@ -32,22 +33,17 @@ function App() {
         <Route path="/vendor/my-reservations" element={<ProtectedRoute requiredRole="VENDOR"><VendorLayout><MyReservations/></VendorLayout></ProtectedRoute>}/>
         <Route path="/vendor/profile" element={<ProtectedRoute requiredRole="VENDOR"><VendorLayout><VendorProfile/></VendorLayout></ProtectedRoute>}/>
 
+
         <Route path="/employee/dashboard" element={<ProtectedRoute requiredRole="EMPLOYEE"><EmployeeDashboard /></ProtectedRoute>} />
         <Route path="/employee/reservations" element={<ProtectedRoute requiredRole="EMPLOYEE"><EmployeeReservations/></ProtectedRoute>} />
         <Route path="/employee/profile" element={<ProtectedRoute requiredRole="EMPLOYEE"><EmployeeProfile/></ProtectedRoute>} />
-
-         {/* Admin Routes */}
-        <Route path="/admin/dashboard" element={<ProtectedRoute requiredRole="ADMIN"><AdminDashboard/></ProtectedRoute>} />
+        <Route path="/employee/stall" element={<ProtectedRoute requiredRole="EMPLOYEE"><EmployeeStall/></ProtectedRoute>} />
         
-        {/* Admin - Employees Management */}
+        <Route path="/admin/dashboard" element={<ProtectedRoute requiredRole="ADMIN"><AdminDashboard/></ProtectedRoute>} />
         <Route path="/admin/employees" element={<ProtectedRoute requiredRole="ADMIN"><AdminEmployees/></ProtectedRoute>} />
         <Route path="/admin/employees/create" element={<ProtectedRoute requiredRole="ADMIN"><CreateEmployee/></ProtectedRoute>} />
-        
-        {/* Admin - Stalls Management */}
         <Route path="/admin/stalls" element={<ProtectedRoute requiredRole="ADMIN"><AdminStalls/></ProtectedRoute>} />
         <Route path="/admin/stalls/create" element={<ProtectedRoute requiredRole="ADMIN"><CreateStall/></ProtectedRoute>} />
-        
-        {/* Admin - Reservations & Map */}
         <Route path="/admin/reservations" element={<ProtectedRoute requiredRole="ADMIN"><AdminReservations/></ProtectedRoute>} />
         <Route path="/admin/profile" element={<ProtectedRoute requiredRole="ADMIN"><AdminProfile/></ProtectedRoute>} />
         
