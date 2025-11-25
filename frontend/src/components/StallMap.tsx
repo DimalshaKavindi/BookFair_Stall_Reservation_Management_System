@@ -200,47 +200,7 @@ return (
             </div>
         </div>
 
-        {showLegend && (
-            <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-            <div className="flex items-center justify-center gap-6 flex-wrap">
-                <div className="flex items-center gap-2">
-                <div className="w-12 h-12 bg-green-300 border-2 border-green-400 rounded-lg flex items-center justify-center">
-                    <span className="text-sm font-bold text-white">S</span>
-                </div>
-                <span className="text-sm font-medium text-gray-700">Small Stall</span>
-                </div>
-
-                <div className="flex items-center gap-2">
-                <div className="w-12 h-12 bg-yellow-300 border-2 border-yellow-400 rounded-lg flex items-center justify-center">
-                    <span className="text-sm font-bold text-white">M</span>
-                </div>
-                <span className="text-sm font-medium text-gray-700">Medium Stall</span>
-                </div>
-
-                <div className="flex items-center gap-2">
-                <div className="w-12 h-12 bg-red-300 border-2 border-red-400 rounded-lg flex items-center justify-center">
-                    <span className="text-sm font-bold text-white">L</span>
-                </div>
-                <span className="text-sm font-medium text-gray-700">Large Stall</span>
-                </div>
-
-                <div className="flex items-center gap-2">
-                <div className="w-12 h-12 bg-sky-400 border-2 border-sky-500 rounded-lg flex items-center justify-center">
-                    <CheckCircle2 className="w-5 h-5 text-white" />
-                </div>
-                <span className="text-sm font-medium text-gray-700">Selected</span>
-                </div>
-
-                <div className="flex items-center gap-2">
-                <div className="w-12 h-12 bg-gray-300 border-2 border-gray-400 rounded-lg flex items-center justify-center opacity-60">
-                    <XCircle className="w-5 h-5 text-gray-600" />
-                </div>
-                <span className="text-sm font-medium text-gray-700">Reserved</span>
-                </div>
-            </div>
-            </div>
-        )}
-
+        
         {viewMode === 'map' && (
             <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
             <div className="flex items-center gap-2 mb-6">
