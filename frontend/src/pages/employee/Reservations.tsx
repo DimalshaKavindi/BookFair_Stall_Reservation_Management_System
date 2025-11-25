@@ -5,14 +5,15 @@ import {
   Filter,
   Loader2,
   Search,
+  Users,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { reservationsAPI, stallsAPI } from "../../api/axios";
+import { reservationsAPI } from "../../api/axios";
 import EmpLayout from "../../layout/EmpLayout";
-import StallMap from "../../components/StallMap";
+
 import ReservationTable from "../../components/ReservationTable";
 import type { Reservation } from "../../types/ReservationType";
-import type { Stall } from "../../types/StallType";
+
 
 type FilterType = {
   status: string;
@@ -21,13 +22,12 @@ type FilterType = {
 
 export default function EmployeeReservations() {
   const [reservations, setReservations] = useState<Reservation[]>([]);
-  const [stalls, setStalls] = useState<Stall[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState<FilterType>({ status: "all", size: "all" });
   const [showFilters, setShowFilters] = useState(false);
-  const [selectedStallsForHighlight, setSelectedStallsForHighlight] = useState<Stall[]>([]);
+  
 
   useEffect(() => {
     loadData();
@@ -37,12 +37,12 @@ export default function EmployeeReservations() {
     try {
       setLoading(true);
       setError(null);
-      const [reservationsRes, stallsRes] = await Promise.all([
+      const [reservationsRes] = await Promise.all([
         reservationsAPI.getAll(),
-        stallsAPI.getAll()
+       
       ]);
       setReservations(reservationsRes.reservations);
-      setStalls(stallsRes.stalls || []);
+      
     } catch (err: any) {
       setError(err.message || "Failed to load data");
       console.error("Load data error:", err);
@@ -69,12 +69,7 @@ export default function EmployeeReservations() {
     });
   }, [reservations, searchQuery, filters]);
 
-  const reservedStalls = useMemo(() => {
-    return stalls.map(stall => ({
-      ...stall,
-      isAvailable: !reservations.some(r => r.stallId === stall.id && r.status === "ACTIVE")
-    }));
-  }, [stalls, reservations]);
+
 
   const exportToCSV = () => {
     const headers = ["Stall", "Business Name", "Email", "Size", "Status", "Contact Person", "Phone", "Date", "Genres"];
@@ -104,14 +99,7 @@ export default function EmployeeReservations() {
     window.URL.revokeObjectURL(url);
   };
 
-  const handleStallClick = (stall: Stall) => {
-    const isSelected = selectedStallsForHighlight.find(s => s.id === stall.id);
-    if (isSelected) {
-      setSelectedStallsForHighlight(selectedStallsForHighlight.filter(s => s.id !== stall.id));
-    } else {
-      setSelectedStallsForHighlight([...selectedStallsForHighlight, stall]);
-    }
-  };
+ 
 
   if (loading) {
     return (
@@ -150,36 +138,26 @@ export default function EmployeeReservations() {
   return (
     <EmpLayout>
       <div className="mx-auto max-w-7xl">
-        {/* Header Section */}
-        <div className="p-6 mb-6 bg-white border border-gray-100 shadow-sm rounded-xl">
+       <div className="p-6 mb-6 bg-white border border-gray-100 shadow-sm rounded-xl">
           <div className="flex flex-wrap items-start justify-between gap-4">
-            <div>
-              <h1 className="flex items-center gap-3 text-3xl font-bold text-gray-900">
-                All Reservations
-              </h1>
-              <p className="mt-2 text-gray-600">
-                Manage and view all stall reservations
-              </p>
+            <div className="flex items-center gap-3">
+              <div className="p-3 rounded-lg bg-gradient-to-br from-green-50 to-green-100">
+                <Users className="w-8 h-8 text-green-600" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900">All Reservations</h1>
+                <p className="text-gray-600">View and manage all reservations</p>
+              </div>
             </div>
+          
           </div>
         </div>
 
-        {/* Stall Map */}
-        <div className="mb-6">
-          <StallMap 
-            stalls={reservedStalls}
-            selectedStalls={selectedStallsForHighlight}
-            onStallClick={handleStallClick}
-            readOnly={true}
-            showLegend={true}
-            highlightReserved={true}
-          />
-        </div>
 
-        {/* Search and Filter Section */}
+     
         <div className="bg-white rounded-xl border border-[#4dd9e8]/20 shadow-sm mb-6 p-6">
           <div className="flex flex-col gap-4 sm:flex-row">
-            {/* Search */}
+          
             <div className="relative flex-1">
               <Search className="absolute w-5 h-5 text-gray-400 -translate-y-1/2 left-3 top-1/2" />
               <input
@@ -191,7 +169,7 @@ export default function EmployeeReservations() {
               />
             </div>
 
-            {/* Filter Button */}
+        
             <button
               onClick={() => setShowFilters(!showFilters)}
               className="flex items-center justify-center gap-2 px-6 py-3 font-medium text-gray-700 transition-colors bg-gray-100 rounded-lg hover:bg-gray-200"
@@ -201,7 +179,7 @@ export default function EmployeeReservations() {
               <ChevronDown className={`w-4 h-4 transition-transform ${showFilters ? "rotate-180" : ""}`} />
             </button>
 
-            {/* Export Button */}
+         
             <button
               onClick={exportToCSV}
               className="px-6 py-3 bg-gradient-to-r from-[#4dd9e8] to-[#2ab7c9] hover:shadow-lg text-white font-medium rounded-lg transition-all flex items-center justify-center gap-2"
@@ -211,7 +189,7 @@ export default function EmployeeReservations() {
             </button>
           </div>
 
-          {/* Filter Options */}
+         
           {showFilters && (
             <div className="grid grid-cols-1 gap-4 pt-4 mt-4 border-t border-gray-200 sm:grid-cols-2">
               <div>
@@ -248,14 +226,6 @@ export default function EmployeeReservations() {
           )}
         </div>
 
-        {/* Results Count */}
-        <div className="mb-4">
-          <p className="text-sm text-gray-600">
-            Showing {filteredReservations.length} of {reservations.length} reservations
-          </p>
-        </div>
-
-        {/* Reservations Table */}
         <ReservationTable reservations={filteredReservations} />
       </div>
     </EmpLayout>

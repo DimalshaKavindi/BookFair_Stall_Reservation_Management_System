@@ -1,4 +1,4 @@
-// pages/admin/Dashboard.tsx
+
 import {
   Award,
   Calendar,
@@ -135,12 +135,12 @@ export default function AdminDashboard() {
          <div className="bg-gradient-to-br from-[#4dd9e8] to-[#2ab7c9] rounded-xl p-8 text-white shadow-[0_0_20px_rgba(77,217,232,0.4)]">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="mb-2 text-3xl font-bold text-white drop-shadow-md">Colombo International Book Fair 2024</h1>
+              <h1 className="mb-2 text-3xl font-bold text-white drop-shadow-md">Colombo International Book Fair 2026</h1>
               <p className="text-lg text-white/95 drop-shadow">Admin Dashboard - Sri Lanka Book Publishers' Association</p>
               <div className="flex items-center gap-4 mt-4">
                 <div className="flex items-center gap-2 px-4 py-2 border rounded-lg bg-white/20 backdrop-blur-sm border-white/30">
                   <Calendar className="w-4 h-4 text-white" />
-                  <span className="text-sm font-medium text-white">December 15-25, 2024</span>
+                  <span className="text-sm font-medium text-white">September 15-24, 2026</span>
                 </div>
                 <div className="flex items-center gap-2 px-4 py-2 border rounded-lg bg-white/20 backdrop-blur-sm border-white/30">
                   <Award className="w-4 h-4 text-white" />
@@ -151,7 +151,7 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* Stats */}
+    
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
           <StatCard title="Total Stalls" value={stats.total} icon={LayoutGrid} color="blue" />
           <StatCard title="Reserved Stalls" value={stats.reserved} icon={CheckCircle} color="green" />
@@ -159,7 +159,6 @@ export default function AdminDashboard() {
           <StatCard title="Employees" value={employeeCount} icon={UserCog} color="purple" />
         </div>
 
-        {/* Occupancy Overview */}
        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           <div className="p-6 transition-shadow bg-white border border-gray-200 shadow-sm lg:col-span-2 rounded-xl hover:shadow-md">
             <div className="flex items-center justify-between mb-6">
@@ -208,7 +207,7 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          {/* Stall Statistics */}
+ 
           <div className="p-6 transition-shadow bg-white border border-gray-200 shadow-sm rounded-xl hover:shadow-md">
             <div className="flex items-center justify-between mb-4">
               <div>
@@ -254,7 +253,7 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* Recent Reservations */}
+ 
         <div className="transition-shadow bg-white border border-gray-200 shadow-sm rounded-xl hover:shadow-md">
           <div className="p-6 border-b border-gray-100">
             <div className="flex items-center justify-between">

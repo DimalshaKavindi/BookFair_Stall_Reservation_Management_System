@@ -1,4 +1,4 @@
-// pages/admin/Reservations.tsx
+
 import { useEffect, useState } from 'react';
 import { Users, Loader2, AlertCircle, Download } from 'lucide-react';
 import { reservationsAPI } from '../../api/axios';
@@ -84,7 +84,7 @@ export default function AdminReservations() {
   return (
     <AdminLayout>
       <div className="mx-auto max-w-7xl">
-        {/* Header */}
+      
         <div className="p-6 mb-6 bg-white border border-gray-100 shadow-sm rounded-xl">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div className="flex items-center gap-3">
@@ -107,7 +107,7 @@ export default function AdminReservations() {
         </div>
 
 
-        {/* Reservations Table */}
+  
         <ReservationTable reservations={reservations} />
       </div>
     </AdminLayout>

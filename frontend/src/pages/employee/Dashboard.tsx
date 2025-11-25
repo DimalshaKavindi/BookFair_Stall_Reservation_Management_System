@@ -19,6 +19,7 @@ import type { DashboardStats } from "../../types/DashboardStats";
 import type { Reservation } from "../../types/ReservationType";
 import type { Stall } from "../../types/StallType";
 
+
 export default function EmployeeDashboard() {
   const navigate = useNavigate();
   const [stats, setStats] = useState<DashboardStats>({
@@ -135,12 +136,12 @@ export default function EmployeeDashboard() {
         <div className="bg-gradient-to-br from-[#4dd9e8] to-[#2ab7c9] rounded-xl p-8 text-white shadow-[0_0_20px_rgba(77,217,232,0.4)]">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="mb-2 text-3xl font-bold text-white drop-shadow-md">Colombo International Book Fair 2024</h1>
+              <h1 className="mb-2 text-3xl font-bold text-white drop-shadow-md">Colombo International Book Fair 2026</h1>
               <p className="text-lg text-white/95 drop-shadow">Organizer Dashboard - Sri Lanka Book Publishers' Association</p>
               <div className="flex items-center gap-4 mt-4">
                 <div className="flex items-center gap-2 px-4 py-2 border rounded-lg bg-white/20 backdrop-blur-sm border-white/30">
                   <Calendar className="w-4 h-4 text-white" />
-                  <span className="text-sm font-medium text-white">December 15-25, 2024</span>
+                  <span className="text-sm font-medium text-white">September 15-24, 2026</span>
                 </div>
                 <div className="flex items-center gap-2 px-4 py-2 border rounded-lg bg-white/20 backdrop-blur-sm border-white/30">
                   <Award className="w-4 h-4 text-white" />
@@ -217,7 +218,7 @@ export default function EmployeeDashboard() {
                 <p className="mt-1 text-sm text-gray-600">Total created stalls</p>
               </div>
                 <button
-                onClick={() => navigate("/employee/reservations")}
+                onClick={() => navigate("/employee/stall")}
                 className="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-[#4dd9e8] to-[#2ab7c9] hover:shadow-lg rounded-lg transition-all"
               >
                 View All

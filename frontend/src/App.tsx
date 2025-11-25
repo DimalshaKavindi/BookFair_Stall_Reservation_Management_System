@@ -18,6 +18,7 @@ import AdminReservations from './pages/admin/Reservations';
 import AdminProfile from './pages/admin/Profile';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import EmployeeStall from './pages/employee/Stall';
 
 function App() {
   return (
@@ -34,19 +35,14 @@ function App() {
         <Route path="/employee/dashboard" element={<EmployeeDashboard/>} />
         <Route path="/employee/reservations" element={<EmployeeReservations/>} />
         <Route path="/employee/profile" element={<EmployeeProfile/>} />
+        <Route path="/employee/stall" element={<EmployeeStall/>} />
 
-         {/* Admin Routes */}
-        <Route path="/admin/dashboard" element={<AdminDashboard/>} />
         
-        {/* Admin - Employees Management */}
+        <Route path="/admin/dashboard" element={<AdminDashboard/>} />
         <Route path="/admin/employees" element={<AdminEmployees/>} />
         <Route path="/admin/employees/create" element={<CreateEmployee/>} />
-        
-        {/* Admin - Stalls Management */}
         <Route path="/admin/stalls" element={<AdminStalls/>} />
         <Route path="/admin/stalls/create" element={<CreateStall/>} />
-        
-        {/* Admin - Reservations & Map */}
         <Route path="/admin/reservations" element={<AdminReservations/>} />
         <Route path="/admin/profile" element={<AdminProfile/>} />
         
