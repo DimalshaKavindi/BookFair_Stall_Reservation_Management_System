@@ -3,7 +3,7 @@ import type { UserProfile } from "./UserType";
 
 export interface Reservation {
   reservationDate: string;
-  literaryGenres: never[];
+  literaryGenres?: string[];
   id: number;
   userId: number;
   stallId: number;

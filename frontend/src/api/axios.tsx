@@ -6,7 +6,7 @@ import type { Stall, StallResponse, StallsResponse } from '../types/StallType';
 import type { UserProfile, UserProfileResponse } from '../types/UserType';
 
 
-const API_BASE_URL = "http://localhost:4000/api";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
 const api = axios.create({
     baseURL: API_BASE_URL,
@@ -165,6 +165,15 @@ export const reservationsAPI = {
   cancel: async (reservationId: number): Promise<{ success: boolean }> => {
     try {
       const res = await api.delete<{ success: boolean }>(`/reservations/${reservationId}`);
+      return res.data;
+    } catch (e) {
+      handleError(e);
+    }
+  },
+
+  updateGenres: async (reservationId: number, genres: string[]): Promise<ReservationResponse> => {
+    try {
+      const res = await api.patch<ReservationResponse>(`/reservations/${reservationId}/genres`, { genres });
       return res.data;
     } catch (e) {
       handleError(e);

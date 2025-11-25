@@ -1,22 +1,9 @@
-import { useState} from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { MapPin, Calendar, BookOpen,CheckCircle,Clock,AlertCircle,Edit3,Star,Warehouse} from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-
-interface Reservation {
-  id: number;
-  stallId: number;
-  stall: {
-    id: number;
-    name: string;
-    size: 'SMALL' | 'MEDIUM' | 'LARGE';
-    dimensions: string;
-    location: string;
-  };
-  reservationDate: string;
-  status: 'ACTIVE' | 'CANCELLED';
-  qrCodeUrl?: string;
-  literaryGenres?: string[];
-}
+import { reservationsAPI, userAPI, stallsAPI } from '../../api/axios';
+import type { Reservation } from '../../types/ReservationType';
+import type { UserProfile } from '../../types/UserType';
 
 interface DashboardStats {
   totalReservations: number;
@@ -29,54 +16,93 @@ interface DashboardStats {
 
 export default function VendorDashboard() {
   const navigate = useNavigate();
-  
-  //dummy data
-  const [stats, setStats] = useState<DashboardStats>({
-    totalReservations: 2,
-    activeReservations: 2,
-    availableStalls: 24,
-    maxStallsAllowed: 3,
-    pendingActions: 1,
-    completedSetups: 1
-  });
-  
-  const [recentReservations, setRecentReservations] = useState<Reservation[]>([
-    {
-      id: 1,
-      stallId: 1,
-      stall: {
-        id: 1,
-        name: 'A',
-        size: 'MEDIUM',
-        dimensions: '3x3m',
-        location: 'BMICH Hall A'
-      },
-      reservationDate: '2026-01-15T10:30:00Z',
-      status: 'ACTIVE',
-      literaryGenres: ['Fiction', 'Children', 'Young Adult'],
-      qrCodeUrl: ''
-    },
-    {
-      id: 2,
-      stallId: 2,
-      stall: {
-        id: 2,
-        name: 'B',
-        size: 'LARGE',
-        dimensions: '4x3m',
-        location: 'BMICH Hall A'
-      },
-      reservationDate: '2026-01-10T14:20:00Z',
-      status: 'ACTIVE',
-      literaryGenres: [],
-      qrCodeUrl: ''
-    }
-  ]);
+  const [recentReservations, setRecentReservations] = useState<Reservation[]>([]);
+  const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
+  const [stallCounts, setStallCounts] = useState({ total: 0, available: 0 });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const maxStallsAllowed = 3;
   
   const [showGenreModal, setShowGenreModal] = useState(false);
   const [selectedReservation, setSelectedReservation] = useState<Reservation | null>(null);
   const [genres, setGenres] = useState<string[]>([]);
   const [newGenre, setNewGenre] = useState('');
+  const [savingGenres, setSavingGenres] = useState(false);
+
+  const fetchDashboardData = useCallback(async ({ silent = false }: { silent?: boolean } = {}) => {
+    if (!silent) {
+      setLoading(true);
+    }
+
+    try {
+      setError(null);
+      const profile = await userAPI.getProfile();
+      setCurrentUser(profile);
+
+      const [reservationsResponse, stallsResponse] = await Promise.all([
+        reservationsAPI.getForUser(profile.id),
+        stallsAPI.getAll()
+      ]);
+
+      const reservationsData = (reservationsResponse.reservations || [])
+        .slice()
+        .sort(
+          (a, b) =>
+            new Date(b.reservationDate).getTime() - new Date(a.reservationDate).getTime()
+        );
+
+      setRecentReservations(reservationsData);
+
+      const stalls = stallsResponse?.stalls || [];
+      const available = stalls.filter(stall => stall.isAvailable).length;
+      setStallCounts({
+        total: stalls.length,
+        available
+      });
+    } catch (err: any) {
+      console.error('Failed to load vendor dashboard data:', err);
+      setError(err.message || 'Failed to load dashboard. Please try again.');
+    } finally {
+      if (!silent) {
+        setLoading(false);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchDashboardData();
+
+    const interval = setInterval(() => {
+      fetchDashboardData({ silent: true });
+    }, 30000);
+
+    return () => clearInterval(interval);
+  }, [fetchDashboardData]);
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    await fetchDashboardData({ silent: true });
+    setIsRefreshing(false);
+  };
+
+  const stats = useMemo<DashboardStats>(() => {
+    const totalReservations = recentReservations.length;
+    const activeReservations = recentReservations.filter(res => res.status === 'ACTIVE').length;
+    const completedSetups = recentReservations.filter(
+      res => (res.literaryGenres?.length || 0) > 0
+    ).length;
+    const pendingActions = Math.max(0, totalReservations - completedSetups);
+
+    return {
+      totalReservations,
+      activeReservations,
+      availableStalls: stallCounts.available,
+      maxStallsAllowed,
+      pendingActions,
+      completedSetups
+    };
+  }, [recentReservations, stallCounts]);
 
   const openGenreModal = (reservation: Reservation) => {
     setSelectedReservation(reservation);
@@ -95,28 +121,30 @@ export default function VendorDashboard() {
     setGenres(genres.filter(genre => genre !== genreToRemove));
   };
 
-  const updateGenres = () => {
+  const updateGenres = async () => {
     if (!selectedReservation) return;
 
-    setRecentReservations(prev => 
-      prev.map(res => 
-        res.id === selectedReservation.id 
-          ? { ...res, literaryGenres: genres }
-          : res
-      )
-    );
-    
-    setStats(prev => ({
-      ...prev,
-      pendingActions: prev.pendingActions - (selectedReservation.literaryGenres?.length === 0 ? 1 : 0),
-      completedSetups: prev.completedSetups + (selectedReservation.literaryGenres?.length === 0 ? 1 : 0)
-    }));
-
-    setShowGenreModal(false);
-    setSelectedReservation(null);
+    setSavingGenres(true);
+    try {
+      await reservationsAPI.updateGenres(selectedReservation.id, genres);
+      setRecentReservations(prev =>
+        prev.map(res =>
+          res.id === selectedReservation.id
+            ? { ...res, literaryGenres: [...genres] }
+            : res
+        )
+      );
+      setShowGenreModal(false);
+      setSelectedReservation(null);
+    } catch (error) {
+      console.error('Failed to update genres:', error);
+      alert('Failed to update genres. Please try again.');
+    } finally {
+      setSavingGenres(false);
+    }
   };
 
-  const getSizeColor = (size: string) => {
+  const getSizeColor = (size?: string) => {
     switch (size) {
       case 'SMALL': return 'bg-green-100 text-green-800';
       case 'MEDIUM': return 'bg-yellow-100 text-yellow-800';
@@ -125,8 +153,34 @@ export default function VendorDashboard() {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading your dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const businessInfo = currentUser?.businessName || 'Vendor';
+  const contactName = currentUser?.contactPerson?.split(' ')[0];
+
   return (
     <div className="space-y-6">
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-center justify-between gap-4">
+          <span>{error}</span>
+          <button
+            onClick={() => fetchDashboardData()}
+            className="px-4 py-2 bg-red-600 text-white text-sm font-semibold rounded-lg hover:bg-red-700 transition-colors"
+          >
+            Retry
+          </button>
+        </div>
+      )}
+
       <div className="bg-gradient-to-br from-[#4598db] to-[#2ab7c9] rounded-2xl shadow-xl p-8 text-white">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
           <div className="flex-1">
@@ -135,7 +189,7 @@ export default function VendorDashboard() {
               <div>
                 <h1 className="text-3xl font-bold">Welcome to Vendor Dashboard</h1>
                 <p className="text-blue-100 text-lg">
-                  Camelia Publishers - Welcome back, Ishara!
+                  {businessInfo} {contactName ? `- Welcome back, ${contactName}!` : ''}
                 </p>
               </div>
             </div>
@@ -191,6 +245,20 @@ export default function VendorDashboard() {
           <span className="text-sm text-gray-500">
             {stats.completedSetups}/{stats.totalReservations} stalls ready
           </span>
+          <button
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+            className="text-sm font-semibold text-[#2ab7c9] hover:text-[#1e2875] flex items-center gap-2 disabled:opacity-50"
+          >
+            {isRefreshing ? (
+              <>
+                <div className="w-4 h-4 border-2 border-[#2ab7c9] border-t-transparent rounded-full animate-spin"></div>
+                Refreshing
+              </>
+            ) : (
+              'Refresh'
+            )}
+          </button>
         </div>
         
         <div className="space-y-4">
@@ -209,7 +277,9 @@ export default function VendorDashboard() {
                   )}
                 </div>
                 <div className="flex-1">
-                  <p className="font-medium text-gray-900">Stall {reservation.stall.name}</p>
+                  <p className="font-medium text-gray-900">
+                    Stall {reservation.stall?.name || reservation.stallId}
+                  </p>
                   <p className="text-sm text-gray-500">
                     {reservation.literaryGenres && reservation.literaryGenres.length > 0 
                       ? 'Ready for exhibition' 
@@ -272,18 +342,18 @@ export default function VendorDashboard() {
                       <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
                         <div className="flex-1">
                           <div className="flex items-start gap-4 mb-4">
-                            <div className={`p-3 rounded-lg ${getSizeColor(reservation.stall.size)}`}>
+                            <div className={`p-3 rounded-lg ${getSizeColor(reservation.stall?.size)}`}>
                               <Warehouse className="w-6 h-6" />
                             </div>
                             <div className="flex-1">
                               <div className="flex items-center gap-3 mb-2">
                                 <h3 className="text-xl font-bold text-gray-900">
-                                  Stall {reservation.stall.name}
+                                  Stall {reservation.stall?.name || reservation.stallId}
                                 </h3>
                               </div>
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-gray-600">
                                 <div>
-                                  <span className="font-medium">Location:</span> {reservation.stall.location}
+                                  <span className="font-medium">Location:</span> {reservation.stall?.location || 'TBA'}
                                 </div>
                                 
                                 <div>
@@ -433,7 +503,7 @@ export default function VendorDashboard() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
             <h3 className="text-xl font-bold text-gray-900 mb-2">
-              Literary Genres for Stall {selectedReservation.stall.name}
+              Literary Genres for Stall {selectedReservation.stall?.name || selectedReservation.stallId}
             </h3>
             <p className="text-gray-600 text-sm mb-6">
               Add the literary genres you'll be displaying at your stall. This helps visitors find your publications.
@@ -496,9 +566,17 @@ export default function VendorDashboard() {
               </button>
               <button
                 onClick={updateGenres}
-                className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 text-white py-2 rounded-lg font-medium hover:shadow-lg transition-all"
+                disabled={savingGenres}
+                className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 text-white py-2 rounded-lg font-medium hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
-                Save Genres
+                {savingGenres ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    Saving...
+                  </>
+                ) : (
+                  'Save Genres'
+                )}
               </button>
             </div>
           </div>
