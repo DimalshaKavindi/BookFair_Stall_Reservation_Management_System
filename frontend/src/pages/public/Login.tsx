@@ -12,7 +12,7 @@ export default function LoginPage() {
     const [userType, setUserType] = useState<'vendor' | 'employee' | 'admin'>('vendor');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [success, setSuccess] = useState(false);
+    const [success] = useState(false);
     
     const [formData, setFormData] = useState({
         email: '',
@@ -44,16 +44,13 @@ export default function LoginPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setError(null);
-        setSuccess(false);
-
+        
         if (!validateForm()) {
             return;
         }
         setIsLoading(true);
         try {
             await authAPI.login(formData.email.trim(), formData.password, userType);
-            setSuccess(true);
             showToastSuccess(`Login successful! Welcome back!`);
             
             setTimeout(() => {
@@ -69,8 +66,6 @@ export default function LoginPage() {
         } catch (err: any) {
             const apiError = err as ApiError;
             const errorMessage = apiError.message || 'Login failed. Please try again.';
-            setError(errorMessage);
-            setSuccess(false);
             showToastError(errorMessage);
         } finally {
             setIsLoading(false);
