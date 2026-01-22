@@ -19,10 +19,14 @@ This project is a Book Fair Stall Reservation System consisting of two main part
 ![Code Diagram](./C4_models/Class_Diagram.png)
 
 ---
+## Live Deployment
+
+-   [https://book-fair-stall-reservation-managem.vercel.appyour-frontend-project.vercel.app](https://book-fair-stall-reservation-managem.vercel.app/)
+---
 
 ## Project Overview
 
-This system allows users to browse available stalls at a book fair, register accounts, make reservations for stalls, and manage those reservations. It is implemented as a full-stack application with a Node.js + Express backend and a React + TypeScript frontend.
+This system allows users to browse available stalls at a book fair, register accounts, make reservations for stalls, and manage those reservations. It is implemented as a full-stack application with a Node.js + Express backend and a React + TypeScript frontend.The system is fully deployed with the frontend hosted on **Vercel** and the backend hosted on **Google Cloud Platform**.
 
 ---
 
