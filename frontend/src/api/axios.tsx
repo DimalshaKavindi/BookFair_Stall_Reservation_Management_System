@@ -7,7 +7,7 @@ import type { UserProfile, UserProfileResponse } from '../types/UserType';
 import { showToastError } from '../utils/toast/errToast';
 
 
-const API_BASE_URL = "http://localhost:4000/api";
+const API_BASE_URL = "https://backend-service-430680490892.asia-south1.run.app/api";
 
 const api = axios.create({
     baseURL: API_BASE_URL,

@@ -7,7 +7,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:4000',
+        target: 'https://backend-service-430680490892.asia-south1.run.app',
         changeOrigin: true,
         secure: false,
       },
