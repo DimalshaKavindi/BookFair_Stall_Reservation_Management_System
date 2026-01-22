@@ -17,7 +17,7 @@ export default function ReserveStalls() {
   const [reserving, setReserving] = useState(false);
   const [userReservations, setUserReservations] = useState<number>(0);
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
-  const [userReservationsList, setUserReservationsList] = useState<Reservation[]>([]);
+  const [, setUserReservationsList] = useState<Reservation[]>([]);
   
   const availableCount = stalls.filter(stall => stall.isAvailable).length;
   const reservedCount = stalls.length - availableCount;

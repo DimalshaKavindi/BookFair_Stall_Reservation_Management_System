@@ -10,7 +10,7 @@ import { showToastinfo } from '../../utils/toast/infoToast';
 export default function MyReservations() {
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [loading, setLoading] = useState(true);
-  const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
+  const [, setCurrentUser] = useState<UserProfile | null>(null);
   const [cancellingId, setCancellingId] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'ALL' | 'ACTIVE' | 'CANCELLED'>('ALL');

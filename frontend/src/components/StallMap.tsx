@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { CheckCircle2, XCircle, MapPin, Grid3x3, List, Eye, Warehouse } from 'lucide-react';
+import { CheckCircle2, MapPin, Grid3x3, List, Eye, Warehouse } from 'lucide-react';
 import type { Stall } from '../types/StallType';
 
 interface StallMapProps {
@@ -19,7 +19,6 @@ export default function StallMap({
     selectedStalls = [], 
     onStallClick,
     readOnly = false,
-    showLegend = true,
     highlightReserved = false,
     className = ''
 }: StallMapProps) {

@@ -5,7 +5,6 @@ import { reservationsAPI, userAPI, stallsAPI } from '../../api/axios';
 import type { Reservation } from '../../types/ReservationType';
 import type { UserProfile } from '../../types/UserType';
 import { showToastError } from '../../utils/toast/errToast';
-import { showToastinfo } from '../../utils/toast/infoToast';
 import { showToastSuccess } from '../../utils/toast/successToast';
 
 interface DashboardStats {
